@@ -2,6 +2,8 @@ import axios from 'axios';
 import separateOffSiteInventory from '../utils/3plUtils/separateOffSiteInventory.js';
 import { fetchStockDetailAllPages } from '../utils/3plUtils/fetchStockDetailsPage.js';
 import { access } from 'fs';
+import { fetchCustomerDetailAllPages } from '../utils/3plUtils/fetchCustomerDetailsPage.js';
+import extractCustomerDetails from '../utils/3plUtils/extractCutomerDetails.js';
 
 export interface Token {
     access_token: string;
@@ -41,7 +43,8 @@ const fetchAllCustomerNames = async(accessToken) => {
     try {
         const result = await fetchCustomerDetailAllPages(accessToken);
         console.log("FETCHED ALL DATA")
-        return separateOffSiteInventory(result);
+        // console.log(result)
+        return extractCustomerDetails(result);
     } catch (error) {
         console.error('Error:', error);
         throw error;
@@ -61,4 +64,4 @@ const fetchAllCustomerNames = async(accessToken) => {
 // };
 
 
-export { fetchAndProcessStorageData, fetchEndpoint  };
+export { fetchAndProcessStorageData, fetchEndpoint, fetchAllCustomerNames  };

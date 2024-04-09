@@ -1,15 +1,15 @@
 import { fetchEndpoint } from "../../3plApi/fetchingAPI.js";
 
-const fetchCustomerDetailPages = async (page, accessToken) => {
+const fetchCustomerDetailPage = async (page, accessToken) => {
     const url = `https://secure-wms.com/customers?pgsiz=100&pgnum=${page}&facilityid=1&sort=+companyInfo.companyName`;
     const data = await fetchEndpoint(url, accessToken);
     return {
         totalResults: data.totalResults,
-        item: {
-           "companyId": data._embedded.readonly.customerId,
-           "companyName": data._embedded.companyInfo.companyName,
-           "deactivated": data._embedded.readonly.deactivated,
-        }
+        item: data._embedded["http://api.3plCentral.com/rels/customers/customer"].map(item => ({ 
+            "customerId": item.readOnly.customerId, 
+            "companyName": item.companyInfo.companyName, 
+            "deactivated": item.readOnly.deactivated 
+        }))
     };
 
 };
@@ -19,17 +19,17 @@ const fetchCustomerDetailAllPages = async (accessToken) => {
     let consolidatedData;
     let allPages = [];
     let pagePromises = [];
-    let pageSize = 500;
+    let pageSize = 100;
     let totalPages;
     let totalResults = 0;
 
    
         try {
-            const firstFetch = await fetchCustomerDetailPages(page, accessToken);
+            const firstFetch = await fetchCustomerDetailPage(page, accessToken);
             totalResults = firstFetch.totalResults;
             console.log("TOTAL RESULTS:", totalResults)
             totalPages = Math.ceil(totalResults / pageSize);
-            console.log("Total PAGES", totalPages);
+            console.log("TOTAL PAGES", totalPages);
             
         } catch (error) {
             console.error('Error fetching page:', error);
@@ -38,7 +38,7 @@ const fetchCustomerDetailAllPages = async (accessToken) => {
 
      while (page < totalPages) {
         try {
-            pagePromises.push(fetchCustomerDetailPages(page, accessToken));
+            pagePromises.push(fetchCustomerDetailPage(page, accessToken));
             page++;
         } catch (error) {
             console.error('Error fetching page:', error);
@@ -49,7 +49,6 @@ const fetchCustomerDetailAllPages = async (accessToken) => {
     try {
         const pages = await Promise.all(pagePromises);
         consolidatedData = pages.flatMap(obj => obj.item);
-        // console.log(allPages);
     } catch (error) {
         console.error('Error fetching pages:', error);
         throw error;
@@ -58,4 +57,4 @@ const fetchCustomerDetailAllPages = async (accessToken) => {
     return consolidatedData;
 };
 
-export { fetchCustomerDetailAllPages, fetchCustomerDetailPages };
+export { fetchCustomerDetailAllPages, fetchCustomerDetailPage };
