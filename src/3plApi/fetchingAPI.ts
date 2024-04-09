@@ -1,9 +1,9 @@
 import axios from 'axios';
-import separateOffSiteInventory from '../utils/3plUtils/separateOffSiteInventory.js';
-import { fetchStockDetailAllPages } from '../utils/3plUtils/fetchStockDetailsPage.js';
+import separateOffSiteInventory from '../utils/separateOffSiteInventory.js';
+import { fetchStockDetailAllPages } from './PageLogic/fetchStockDetailsPage.js';
 import { access } from 'fs';
-import { fetchCustomerDetailAllPages } from '../utils/3plUtils/fetchCustomerDetailsPage.js';
-import extractCustomerDetails from '../utils/3plUtils/extractCutomerDetails.js';
+import { fetchCustomerDetailAllPages } from './PageLogic/fetchCustomerDetailsPage.js';
+import extractCustomerDetails from '../utils/extractCutomerDetails.js';
 
 export interface Token {
     access_token: string;

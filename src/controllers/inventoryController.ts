@@ -9,11 +9,11 @@ const tpl: string = '{8f403968-22c2-46f2-8942-6aaa7b846398}';
 const userLoginId: string = '1055';
 
 const getStorageDataByClient = asyncHandler(async (req: Request, res: Response) => {
-    const customerId: string = "1347";
+    const customerId: string = "1244";
     const token: Token = await checkToken(authKey, tpl, userLoginId);
     console.log(token.access_token);
     const accessToken: string = token.access_token;
-    let url: string = "https://secure-wms.com/inventory/stockdetails?customerid=1347&facilityid=1&rql=onHand=gt=0&pgsiz=500&pgnum=8";
+    // let url: string = "https://secure-wms.com/inventory/stockdetails?customerid=1347&facilityid=1&rql=onHand=gt=0&pgsiz=500&pgnum=8";
 
     try {
         const finalResult = await fetchAndProcessStorageData(accessToken, customerId);

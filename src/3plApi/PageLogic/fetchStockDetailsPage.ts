@@ -1,44 +1,39 @@
-import { fetchEndpoint } from "../../3plApi/fetchingAPI.js";
+import { fetchEndpoint } from "../fetchingAPI.js";
 
-const fetchCustomerDetailPage = async (page, accessToken) => {
-    const url = `https://secure-wms.com/customers?pgsiz=100&pgnum=${page}&facilityid=1&sort=+companyInfo.companyName`;
+const fetchStockDetailPage = async (page, accessToken, customerId) => {
+    const url = `https://secure-wms.com/inventory/stockdetails?customerid=${customerId}&facilityid=1&rql=onHand=gt=0&pgsiz=500&pgnum=${page}`;
     const data = await fetchEndpoint(url, accessToken);
     return {
         totalResults: data.totalResults,
-        item: data._embedded["http://api.3plCentral.com/rels/customers/customer"].map(item => ({ 
-            "customerId": item.readOnly.customerId, 
-            "companyName": item.companyInfo.companyName, 
-            "deactivated": item.readOnly.deactivated 
-        }))
+        item: data._embedded.item
     };
 
 };
 
-const fetchCustomerDetailAllPages = async (accessToken) => {
+const fetchStockDetailAllPages = async (accessToken, customerId) => {
     let page = 1;
     let consolidatedData;
-    let allPages = [];
     let pagePromises = [];
-    let pageSize = 100;
+    let pageSize = 500;
     let totalPages;
     let totalResults = 0;
 
    
         try {
-            const firstFetch = await fetchCustomerDetailPage(page, accessToken);
+            const firstFetch = await fetchStockDetailPage(page, accessToken, customerId);
             totalResults = firstFetch.totalResults;
             console.log("TOTAL RESULTS:", totalResults)
             totalPages = Math.ceil(totalResults / pageSize);
-            console.log("TOTAL PAGES", totalPages);
+            console.log("Total PAGES", totalPages);
             
         } catch (error) {
             console.error('Error fetching page:', error);
             throw error;
         }
 
-     while (page < totalPages) {
+     while (page <= totalPages) {
         try {
-            pagePromises.push(fetchCustomerDetailPage(page, accessToken));
+            pagePromises.push(fetchStockDetailPage(page, accessToken, customerId));
             page++;
         } catch (error) {
             console.error('Error fetching page:', error);
@@ -57,4 +52,4 @@ const fetchCustomerDetailAllPages = async (accessToken) => {
     return consolidatedData;
 };
 
-export { fetchCustomerDetailAllPages, fetchCustomerDetailPage };
+export { fetchStockDetailAllPages, fetchStockDetailPage };
