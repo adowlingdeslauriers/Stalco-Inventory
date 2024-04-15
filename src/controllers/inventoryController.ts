@@ -18,6 +18,7 @@ const getStorageDataByClient = asyncHandler(async (req: Request, res: Response) 
     try {
         const finalResult = await fetchAndProcessStorageData(accessToken, customerId);
         console.log("Processed inventory data:", finalResult);
+        res.send(finalResult)
     } catch (error) {
         console.error('Error:', error);
     }

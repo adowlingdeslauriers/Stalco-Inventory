@@ -17,6 +17,7 @@ const getAllCustomers = asyncHandler(async (req: Request, res: Response) => {
     try {
         const finalResult = await fetchAllCustomerNames(accessToken);
         console.log("Processed customers data:", finalResult);
+        res.send(finalResult)
     } catch (error) {
         console.error('Error:', error);
     }
