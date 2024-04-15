@@ -9,7 +9,8 @@ const tpl: string = '{8f403968-22c2-46f2-8942-6aaa7b846398}';
 const userLoginId: string = '1055';
 
 const getStorageDataByClient = asyncHandler(async (req: Request, res: Response) => {
-    const customerId: string = "1244";
+    
+    const customerId: any = req.query.customerId;
     const token: Token = await checkToken(authKey, tpl, userLoginId);
     console.log(token.access_token);
     const accessToken: string = token.access_token;
