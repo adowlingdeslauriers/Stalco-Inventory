@@ -14,6 +14,7 @@ const getStorageDataByClient = asyncHandler(async (req: Request, res: Response) 
     const token: Token = await checkToken(authKey, tpl, userLoginId);
     console.log(token.access_token);
     const accessToken: string = token.access_token;
+    console.log("CustomerID:", customerId)
     // let url: string = "https://secure-wms.com/inventory/stockdetails?customerid=1347&facilityid=1&rql=onHand=gt=0&pgsiz=500&pgnum=8";
 
     try {

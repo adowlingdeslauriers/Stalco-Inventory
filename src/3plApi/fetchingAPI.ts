@@ -31,7 +31,7 @@ const fetchEndpoint = async (url, accessToken) => {
 const fetchAndProcessStorageData = async (accessToken, customerId) => {
     try {
         const result = await fetchStockDetailAllPages(accessToken,customerId);
-        console.log("FETCHED ALL DATA")
+        // console.log("FETCHED ALL DATA", result)
         return separateOffSiteInventory(result);
     } catch (error) {
         console.error('Error:', error);
@@ -42,7 +42,7 @@ const fetchAndProcessStorageData = async (accessToken, customerId) => {
 const fetchAllCustomerNames = async(accessToken) => {
     try {
         const result = await fetchCustomerDetailAllPages(accessToken);
-        console.log("FETCHED ALL DATA")
+        // console.log("FETCHED ALL DATA")
         // console.log(result)
         return extractCustomerDetails(result);
     } catch (error) {
