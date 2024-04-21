@@ -3,20 +3,18 @@ const separateOffSiteInventory = (data) => {
     let claysonTotal = 0;
     let whlTotal = 0;
 
-    data.forEach(item => {
-        const nameKey = item.locationIdentifier.nameKey.name;
-        const qty = item.available;
-        const key = nameKey.includes('-') ? 'Clayson' : 'WHL';
+    data.forEach(({ locationIdentifier, available, itemIdentifier }) => {
+        const nameKey = locationIdentifier.nameKey.name.toLowerCase();
+        const qty = available;
+        const key = nameKey.includes('-') && !nameKey.includes('whl') ? 'Clayson' : 
+                    nameKey.includes('prints') || nameKey.includes('packaging') ? 'Clayson' : 'WHL';
 
-        if (result[item.itemIdentifier.sku]) {
-            result[item.itemIdentifier.sku][key] = (result[item.itemIdentifier.sku][key] || 0) + qty;
-        } else {
-            result[item.itemIdentifier.sku] = { [key]: qty };
-        }
+        result[itemIdentifier.sku] = result[itemIdentifier.sku] || {};
+        result[itemIdentifier.sku][key] = (result[itemIdentifier.sku][key] || 0) + qty;
 
         if (key === 'Clayson') {
             claysonTotal += qty;
-        } else if (key === 'WHL') {
+        } else {
             whlTotal += qty;
         }
     });
