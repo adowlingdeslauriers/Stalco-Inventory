@@ -8,7 +8,7 @@ const authKey: string = 'MGMyMzllMTgtYmM0YS00NDA3LThmMmUtODAwYWE2MjQ5OTlhOnRaQVh
 const tpl: string = '{8f403968-22c2-46f2-8942-6aaa7b846398}';
 const userLoginId: string = '1055';
 
-const getStorageDataByClient = asyncHandler(async (req: Request, res: Response) => {
+const getStorageDetailsByClient = asyncHandler(async (req: Request, res: Response) => {
     
     const customerId: any = req.query.customerId;
     const token: Token = await checkToken(authKey, tpl, userLoginId);
@@ -26,4 +26,4 @@ const getStorageDataByClient = asyncHandler(async (req: Request, res: Response) 
     }
 });
 
-export default getStorageDataByClient;
+export default getStorageDetailsByClient;

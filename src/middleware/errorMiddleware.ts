@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
 const notFound = (req: Request, res: Response, next: NextFunction) => {
-  const error = new Error(`Not Found - ${req.originalUrl}`) as any; // Casting to any for the 'next' parameter
+  const error = new Error(`Not Found - ${req.originalUrl}`) as any; 
   res.status(404);
   next(error);
 };
