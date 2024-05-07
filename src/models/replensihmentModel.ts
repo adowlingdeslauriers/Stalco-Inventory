@@ -2,7 +2,8 @@ import mongoose, { Document, Model, Schema } from 'mongoose';
 
 export interface IReplenishment extends Document {
   sku: string;
-  client: string;
+  clientId: string;
+  clientName: string;
   flag: boolean;
   threshold: number;
   qtyToReplenish: number;
@@ -14,7 +15,11 @@ export interface IReplenishment extends Document {
     required: true,
     unique: true,
   },
-  client: {
+  clientId: {
+    type: String,
+    required: true,
+  },
+  clientName: {
     type: String,
     required: true,
   },

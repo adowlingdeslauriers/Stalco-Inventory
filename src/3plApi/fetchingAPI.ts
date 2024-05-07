@@ -52,6 +52,7 @@ const fetchAllCustomerNames = async(accessToken) => {
 }
 
 
+
 // const fetchAndProcessInventory = async (url, accessToken) => {
 //     try {
 //         const result = await fetchEndpoint(url, accessToken);

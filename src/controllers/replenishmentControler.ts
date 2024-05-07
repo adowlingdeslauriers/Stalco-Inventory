@@ -20,16 +20,18 @@ export const getReplenishmentById = asyncHandler(async (req: Request, res: Respo
 });
 
 export const addReplenishment = asyncHandler(async (req: Request, res: Response) => {
-  const { sku } = req.body;
-  const existingReplenishment = await Replenishment.findOne({ sku });
-  if (existingReplenishment) {
-    throw new ConflictError('Record with the same SKU already exists');
-  }
-
-  const newReplenishment = new Replenishment(req.body);
-  const savedReplenishment = await newReplenishment.save();
-  res.status(201).json(savedReplenishment);
-});
+    const { sku, qtyToReplenish = 0 } = req.body; 
+  
+    const existingReplenishment = await Replenishment.findOne({ sku });
+    if (existingReplenishment) {
+      throw new ConflictError('Record with the same SKU already exists');
+    }
+  
+    const newReplenishment = new Replenishment({ ...req.body, qtyToReplenish }); 
+    const savedReplenishment = await newReplenishment.save();
+    res.status(201).json(savedReplenishment);
+  });
+  
 
 export const deleteReplenishment = asyncHandler(async (req: Request, res: Response) => {
   const { sku } = req.params;
@@ -85,7 +87,6 @@ export const getReplenishmentsByClientWithFlagTrue = asyncHandler(async (req: Re
 
 
 
-//TEST
 
 // export const updateReplenishment = asyncHandler(async (req, res, next) => {
 //     try {

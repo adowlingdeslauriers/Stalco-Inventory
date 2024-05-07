@@ -14,7 +14,7 @@ interface InventoryData {
     itemIdentifier: ItemIdentifier;
 }
 
-interface InventoryResult {
+export interface InventoryResult {
     [key: string]: {
         [key: string]: number;
     };
@@ -26,7 +26,7 @@ interface InventorySummary {
     WHL: number;
 }
 
-interface SeparatedInventory {
+export interface SeparatedInventory {
     summary: InventorySummary;
     detail: InventoryResult;
 }

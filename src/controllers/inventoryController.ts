@@ -3,6 +3,8 @@ import { fetchAndProcessStorageData, Token } from "../3plApi/fetchingAPI.js";
 import { checkToken } from "../3plApi/tokenHandler.js";
 import asyncHandler from "../middleware/asyncHandler.js";
 import { Request, Response } from 'express';
+import { checkReplenishmentFlags, updateReplenishmentFlags } from "../services/replenishmentService.js";
+import { sendEmail } from "../utils/emailSender.js";
 
 const authKey: string = 'MGMyMzllMTgtYmM0YS00NDA3LThmMmUtODAwYWE2MjQ5OTlhOnRaQVhJV29YYlpBUXVZbFJYM05JM3RUL3E3WXBWY0VF';
 const tpl: string = '{8f403968-22c2-46f2-8942-6aaa7b846398}';
@@ -21,6 +23,9 @@ const getStorageDetailsByClient = asyncHandler(async (req: Request, res: Respons
         const finalResult = await fetchAndProcessStorageData(accessToken, customerId);
         console.log("Processed inventory data:", finalResult);
         res.send(finalResult)
+        await updateReplenishmentFlags(finalResult.detail, customerId );
+
+
     } catch (error) {
         console.error('Error:', error);
     }
