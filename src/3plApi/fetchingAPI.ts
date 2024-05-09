@@ -4,10 +4,17 @@ import { fetchStockDetailAllPages } from './PageLogic/fetchStockDetailsPage.js';
 import { access } from 'fs';
 import { fetchCustomerDetailAllPages } from './PageLogic/fetchCustomerDetailsPage.js';
 import extractCustomerDetails from '../utils/extractCutomerDetails.js';
+import { checkToken } from './tokenHandler.js';
+import { updateReplenishmentFlags } from '../services/replenishmentService.js';
 
 export interface Token {
     access_token: string;
 }
+
+const authKey: string = 'MGMyMzllMTgtYmM0YS00NDA3LThmMmUtODAwYWE2MjQ5OTlhOnRaQVhJV29YYlpBUXVZbFJYM05JM3RUL3E3WXBWY0VF';
+const tpl: string = '{8f403968-22c2-46f2-8942-6aaa7b846398}';
+const userLoginId: string = '1055';
+
 
 const fetchEndpoint = async (url, accessToken) => {
     const headers = {
@@ -52,6 +59,17 @@ const fetchAllCustomerNames = async(accessToken) => {
 }
 
 
+const fetchAndUpdateFlagsByClient = async(customerId) => {
+    const token: Token = await checkToken(authKey, tpl, userLoginId);
+    const accessToken: string = token.access_token;
+    const result = await fetchAndProcessStorageData(accessToken, customerId);
+ console.log("HERE is Resule", result)
+    
+    await updateReplenishmentFlags(result.detail, customerId );
+    console.log("Updated replenishment data for client ID:", customerId)
+}
+
+
 
 // const fetchAndProcessInventory = async (url, accessToken) => {
 //     try {
@@ -65,4 +83,4 @@ const fetchAllCustomerNames = async(accessToken) => {
 // };
 
 
-export { fetchAndProcessStorageData, fetchEndpoint, fetchAllCustomerNames  };
+export { fetchAndProcessStorageData, fetchEndpoint, fetchAllCustomerNames, fetchAndUpdateFlagsByClient  };

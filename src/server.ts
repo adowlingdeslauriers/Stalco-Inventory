@@ -6,6 +6,7 @@ import inventoryRoutes from "./routes/inventoryRoutes.js"
 import customerRoutes from "./routes/customerRoutes.js"
 import replenishmentRoutes from "./routes/replenishmentRoutes.js"
 
+import { checkReplenishmentCronJob } from "./cronJobs/checkReplenishmentCronJob.js";
 import { config } from "dotenv";
 import connectDB from "./config/db.js";
 
@@ -14,6 +15,7 @@ config();
 const PORT = process.env.PORT || 8000;
 
 const app = express();
+checkReplenishmentCronJob();
 
 connectDB();
 

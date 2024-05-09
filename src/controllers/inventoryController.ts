@@ -23,7 +23,7 @@ const getStorageDetailsByClient = asyncHandler(async (req: Request, res: Respons
         const finalResult = await fetchAndProcessStorageData(accessToken, customerId);
         console.log("Processed inventory data:", finalResult);
         res.send(finalResult)
-        await updateReplenishmentFlags(finalResult.detail, customerId );
+        // await updateReplenishmentFlags(finalResult.detail, customerId );
 
 
     } catch (error) {

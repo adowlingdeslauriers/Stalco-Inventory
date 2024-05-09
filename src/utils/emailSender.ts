@@ -12,6 +12,8 @@ const transporter = nodemailer.createTransport({
 // Function to generate HTML table from data
 function generateHTMLTable(data: any[]): string {
     let html = `
+    <h3> Below is a list of inventory which needs to be replenished :  </h3>
+
       <table style="border-collapse: collapse; width: 100%;">
         <thead>
           <tr>
@@ -26,6 +28,7 @@ function generateHTMLTable(data: any[]): string {
   
     data.forEach(item => {
       html += `
+      
         <tr>
           <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${item.clientName}</td>
           <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${item.sku}</td>
