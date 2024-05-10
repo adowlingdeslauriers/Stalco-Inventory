@@ -28,6 +28,7 @@ const getStorageDetailsByClient = asyncHandler(async (req: Request, res: Respons
 
     } catch (error) {
         console.error('Error:', error);
+        res.status(500).send(error)
     }
 });
 

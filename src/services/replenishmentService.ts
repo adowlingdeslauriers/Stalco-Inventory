@@ -14,38 +14,52 @@ interface ClientData {
  * @param clientId The client ID for which to check.
  */
 export async function updateReplenishmentFlags(apiData: InventoryResult, clientId: string): Promise<void> {
-    console.log("Here is the APIdata" , apiData)
-    if (apiData) {
-      try {
-        for (const [sku, clientData] of Object.entries(apiData)) {
-          if (clientData && clientData.Clayson !== undefined) {
-            const replenishment = await Replenishment.findOne({ sku, clientId }) as IReplenishment | null;
-  
-            if (replenishment) {
-              if (clientData.Clayson < replenishment.threshold &&  clientData.WHL > 0) {
-                replenishment.flag = true;
-                replenishment.qtyToReplenish = replenishment.threshold - clientData.Clayson;
-                await replenishment.save();
-                console.log(`Flag updated for SKU: ${sku}`);
-              } else if (clientData.Clayson > replenishment.threshold){
-                replenishment.flag = false;
-                replenishment.qtyToReplenish = 0;
-                await replenishment.save();
+    if (!apiData) {
+        console.error('Error: apiData is undefined or null.');
+        return;
+    }
 
-              }
-              console.log("UPDATED ALL FLAGs");
-            } 
-          }
+    console.log("Here is the APIdata", apiData);
+    const skus = Object.keys(apiData);
+    if (!skus.length) {
+        return;
+    }
+
+    try {
+        // Retrieve all replenishments at once
+        const replenishments = await Replenishment.find({ sku: { $in: skus }, clientId }).then(res => new Map(res.map(item => [item.sku, item])));
+
+        const updates = [];
+
+        for (const [sku, clientData] of Object.entries(apiData)) {
+            const replenishment = replenishments.get(sku);
+            if (replenishment && clientData && clientData.Clayson !== undefined) {
+                let needsSave = false;
+
+                if (clientData.Clayson < replenishment.threshold && clientData.WHL > 0) {
+                    replenishment.flag = true;
+                    replenishment.qtyToReplenish = replenishment.threshold - clientData.Clayson;
+                    needsSave = true;
+                } else if (clientData.Clayson >= replenishment.threshold) {
+                    replenishment.flag = false;
+                    replenishment.qtyToReplenish = 0;
+                    needsSave = true;
+                }
+
+                if (needsSave) {
+                    updates.push(replenishment.save());
+                }
+            }
         }
-      } catch (error) {
+
+        await Promise.all(updates);
+        console.log("UPDATED ALL FLAGS");
+    } catch (error) {
         console.error('Error updating replenishment flags:', error);
         throw error;
-      }
-    } else {
-      console.error('Error: apiData is undefined or null.');
     }
-  }
-  
+}
+
 
 export async function checkReplenishmentFlags(): Promise<IReplenishment[]> {
     try {

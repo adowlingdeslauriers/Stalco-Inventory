@@ -37,6 +37,13 @@ const separateOffSiteInventory = (data: InventoryData[]): SeparatedInventory => 
     let whlTotal: number = 0;
 
     data.forEach(({ locationIdentifier, available, itemIdentifier }) => {
+
+                // Ensure locationIdentifier and nameKey are not undefined
+                if (!locationIdentifier || !locationIdentifier.nameKey) {
+                    console.warn('Invalid locationIdentifier detected, skipping item:', itemIdentifier.sku);
+                    return; // Skip this iteration if locationIdentifier or nameKey is undefined
+                }
+        
         const nameKey: string = locationIdentifier.nameKey.name.toLowerCase();
         const qty: number = available;
         const key: string =

@@ -3,6 +3,7 @@ import Replenishment from '../models/replensihmentModel.js';
 import { Request, Response } from 'express';
 import { NotFoundError, ConflictError } from "../utils/errors.js"
 import asyncHandler from '../middleware/asyncHandler.js';
+import { fetchAndUpdateFlagsByClient } from '../3plApi/fetchingAPI.js';
 
 export const getAllReplenishments = async (req: Request, res: Response) => {
   const replenishments = await Replenishment.find();
@@ -77,11 +78,9 @@ export const getReplenishmentsWhereFlagIsTrue = asyncHandler(async (req: Request
 
 export const getReplenishmentsByClientWithFlagTrue = asyncHandler(async (req: Request, res: Response) => {
   const { clientId } = req.params;
-  const replenishments = await Replenishment.find({ client: clientId, flag: true });
-    if (!replenishments || replenishments.length === 0) {
-
-    throw new NotFoundError('Replenishment not found');
-  }
+  console.log(clientId)
+  await fetchAndUpdateFlagsByClient(clientId)
+  const replenishments = await Replenishment.find({ clientId: clientId, flag: true });
   res.status(200).json(replenishments);
 });
 
