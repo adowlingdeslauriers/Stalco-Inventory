@@ -31,32 +31,74 @@ export interface SeparatedInventory {
     detail: InventoryResult;
 }
 
+// const separateOffSiteInventory = (data: InventoryData[]): SeparatedInventory => {
+//     const result: InventoryResult = {};
+//     let claysonTotal: number = 0;
+//     let whlTotal: number = 0;
+
+//     data.forEach(({ locationIdentifier, available, itemIdentifier }) => {
+
+//                 // Ensure locationIdentifier and nameKey are not undefined
+//                 if (!locationIdentifier || !locationIdentifier.nameKey) {
+//                     console.warn('Invalid locationIdentifier detected, skipping item:', itemIdentifier.sku);
+//                     return; // Skip this iteration if locationIdentifier or nameKey is undefined
+//                 }
+        
+//         const nameKey: string = locationIdentifier.nameKey.name.toLowerCase();
+//         const qty: number = available;
+//         const key: string =
+//             nameKey.includes('-') && !nameKey.includes('whl') ? 'Clayson' :
+//             nameKey.includes('prints') || nameKey.includes('packaging') ? 'Clayson' : 'WHL';
+
+//         result[itemIdentifier.sku] = result[itemIdentifier.sku] || {};
+//         result[itemIdentifier.sku][key] = (result[itemIdentifier.sku][key] || 0) + qty;
+
+//         if (key === 'Clayson') {
+//             claysonTotal += qty;
+//         } else {
+//             whlTotal += qty;
+//         }
+//     });
+
+//     return {
+//         summary: {
+//             Total: claysonTotal + whlTotal,
+//             Clayson: claysonTotal,
+//             WHL: whlTotal
+//         },
+//         detail: result
+//     };
+// };
+
 const separateOffSiteInventory = (data: InventoryData[]): SeparatedInventory => {
     const result: InventoryResult = {};
-    let claysonTotal: number = 0;
-    let whlTotal: number = 0;
+    let claysonTotal = 0;
+    let whlTotal = 0;
 
     data.forEach(({ locationIdentifier, available, itemIdentifier }) => {
+        if (!locationIdentifier?.nameKey) {
+            console.warn('Invalid locationIdentifier detected, skipping item:', itemIdentifier.sku);
+            return;
+        }
 
-                // Ensure locationIdentifier and nameKey are not undefined
-                if (!locationIdentifier || !locationIdentifier.nameKey) {
-                    console.warn('Invalid locationIdentifier detected, skipping item:', itemIdentifier.sku);
-                    return; // Skip this iteration if locationIdentifier or nameKey is undefined
-                }
-        
-        const nameKey: string = locationIdentifier.nameKey.name.toLowerCase();
-        const qty: number = available;
-        const key: string =
-            nameKey.includes('-') && !nameKey.includes('whl') ? 'Clayson' :
-            nameKey.includes('prints') || nameKey.includes('packaging') ? 'Clayson' : 'WHL';
+        const nameKey = locationIdentifier.nameKey.name.toLowerCase();
+        const quantity = available;
 
-        result[itemIdentifier.sku] = result[itemIdentifier.sku] || {};
-        result[itemIdentifier.sku][key] = (result[itemIdentifier.sku][key] || 0) + qty;
+        // Simplify the assignment of the key by grouping similar conditions
+        const isClayson = nameKey.includes('-') && !nameKey.includes('whl') ||
+                          nameKey.includes('prints') || nameKey.includes('packaging') || nameKey.includes('triage');
+        const key = isClayson ? 'Clayson' : 'WHL';
 
-        if (key === 'Clayson') {
-            claysonTotal += qty;
+        // Initialize the SKU record if not already initialized
+        const skuRecord = result[itemIdentifier.sku] = result[itemIdentifier.sku] || {};
+        const currentQuantity = skuRecord[key] || 0;
+        skuRecord[key] = currentQuantity + quantity;
+
+        // Increment total counters
+        if (isClayson) {
+            claysonTotal += quantity;
         } else {
-            whlTotal += qty;
+            whlTotal += quantity;
         }
     });
 

@@ -33,15 +33,22 @@ export const addReplenishment = asyncHandler(async (req: Request, res: Response)
     res.status(201).json(savedReplenishment);
   });
   
+  export const deleteReplenishment = asyncHandler(async (req: Request, res: Response) => {
+    const { sku } = req.params;
+    const deletedReplenishment = await Replenishment.findOneAndDelete({ sku });
+   console.log("HERE is the deleted record:", deletedReplenishment)
+    if (!deletedReplenishment) {
+      throw new NotFoundError('Replenishment not found');
+    }
 
-export const deleteReplenishment = asyncHandler(async (req: Request, res: Response) => {
-  const { sku } = req.params;
-  const deletedReplenishment = await Replenishment.findOneAndDelete({ sku });
-  if (!deletedReplenishment) {
-    throw new NotFoundError('Replenishment not found');
-  }
-  res.status(200).json({ message: 'Replenishment deleted successfully', deletedReplenishment });
+    // If the document was found and deleted, send a 200 response with details
+    res.status(200).json({
+        message: 'Replenishment deleted successfully',
+        deletedReplenishment
+    });
 });
+
+  
 
 export const updateReplenishment = asyncHandler(async (req: Request, res: Response) => {
   const { sku } = req.params;

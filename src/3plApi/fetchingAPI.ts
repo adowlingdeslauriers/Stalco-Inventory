@@ -50,7 +50,6 @@ const fetchAllCustomerNames = async(accessToken) => {
     try {
         const result = await fetchCustomerDetailAllPages(accessToken);
         // console.log("FETCHED ALL DATA")
-        // console.log(result)
         return extractCustomerDetails(result);
     } catch (error) {
         console.error('Error:', error);
@@ -63,7 +62,6 @@ const fetchAndUpdateFlagsByClient = async(customerId) => {
     const token: Token = await checkToken(authKey, tpl, userLoginId);
     const accessToken: string = token.access_token;
     const result = await fetchAndProcessStorageData(accessToken, customerId);
- console.log("HERE is Resule", result)
     
     await updateReplenishmentFlags(result.detail, customerId );
     console.log("Updated replenishment data for client ID:", customerId)
