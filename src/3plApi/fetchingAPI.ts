@@ -11,10 +11,9 @@ export interface Token {
     access_token: string;
 }
 
-const authKey: string = 'MGMyMzllMTgtYmM0YS00NDA3LThmMmUtODAwYWE2MjQ5OTlhOnRaQVhJV29YYlpBUXVZbFJYM05JM3RUL3E3WXBWY0VF';
-const tpl: string = '{8f403968-22c2-46f2-8942-6aaa7b846398}';
-const userLoginId: string = '1055';
-
+const authKey: string = process.env.AUTH_KEY as string;
+const tpl: string = process.env.TPL as string;
+const userLoginId: string = process.env.USER_LOGIN_ID as string
 
 const fetchEndpoint = async (url, accessToken) => {
     const headers = {
