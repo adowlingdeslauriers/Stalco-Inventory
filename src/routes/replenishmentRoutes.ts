@@ -8,7 +8,7 @@ import {
   getReplenishmentsByClientId,
   getReplenishmentsWhereFlagIsTrue,
   getReplenishmentsByClientWithFlagTrue, 
-  getReplenishmentById} from "../controllers/replenishmentControler.js"
+  getReplenishmentById} from "../controllers/replenishmentController.js"
 
 const router = express.Router();
 
