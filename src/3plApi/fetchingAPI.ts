@@ -1,9 +1,9 @@
 import axios from 'axios';
-import separateOffSiteInventory from '../utils/separateOffSiteInventory.js';
+import separateOffSiteInventory from '../utils/inventory/separateOffSiteInventory.js';
 import { fetchStockDetailAllPages } from './PageLogic/fetchStockDetailsPage.js';
 import { access } from 'fs';
 import { fetchCustomerDetailAllPages } from './PageLogic/fetchCustomerDetailsPage.js';
-import extractCustomerDetails from '../utils/extractCutomerDetails.js';
+import extractCustomerDetails from '../utils/customers/extractCutomerDetails.js';
 import { checkToken } from './tokenHandler.js';
 import { updateReplenishmentFlags } from '../services/replenishmentService.js';
 
@@ -66,18 +66,6 @@ const fetchAndUpdateFlagsByClient = async(customerId) => {
     console.log("Updated replenishment data for client ID:", customerId)
 }
 
-
-
-// const fetchAndProcessInventory = async (url, accessToken) => {
-//     try {
-//         const result = await fetchEndpoint(url, accessToken);
-//         console.log(result)
-//         return separateOffSiteInventory(result);
-//     } catch (error) {
-//         console.error('Error:', error);
-//         throw error;
-//     }
-// };
 
 
 export { fetchAndProcessStorageData, fetchEndpoint, fetchAllCustomerNames, fetchAndUpdateFlagsByClient  };

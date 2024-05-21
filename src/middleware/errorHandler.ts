@@ -1,6 +1,6 @@
 // src/middleware/errorHandler.ts
 import { Request, Response, NextFunction } from "express";
-import { ApplicationError, NotFoundError } from "../utils/errors.js"
+import { ApplicationError, NotFoundError } from "../utils/errors/errors.js"
 
 export const errorHandler = (err: ApplicationError | any, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof ApplicationError) {

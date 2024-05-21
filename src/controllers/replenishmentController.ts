@@ -1,7 +1,7 @@
 // src/controllers/replenishmentController.ts
 import Replenishment from '../models/replensihmentModel.js';
 import { Request, Response } from 'express';
-import { NotFoundError, ConflictError } from "../utils/errors.js"
+import { NotFoundError, ConflictError } from "../utils/errors/errors.js"
 import asyncHandler from '../middleware/asyncHandler.js';
 import { fetchAndUpdateFlagsByClient } from '../3plApi/fetchingAPI.js';
 

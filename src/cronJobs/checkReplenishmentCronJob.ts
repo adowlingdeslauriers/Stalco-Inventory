@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { checkReplenishmentFlags } from '../services/replenishmentService.js';
-import { sendEmail } from "../utils/emailSender.js"
+import { sendEmail } from "../utils/smtp/emailSender.js"
 import { fetchAndUpdateFlagsByClient } from "../3plApi/fetchingAPI.js"
 
 // Array of IDs to process

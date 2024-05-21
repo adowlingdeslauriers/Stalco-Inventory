@@ -1,5 +1,5 @@
 import Replenishment, { IReplenishment } from "../models/replensihmentModel.js"; 
-import { InventoryResult } from "../utils/separateOffSiteInventory.js";
+import { InventoryResult } from "../utils/inventory/separateOffSiteInventory.js";
 
 interface ClientData {
   Clayson?: number;
