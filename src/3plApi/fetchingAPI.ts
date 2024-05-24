@@ -6,6 +6,7 @@ import { fetchCustomerDetailAllPages } from './PageLogic/fetchCustomerDetailsPag
 import extractCustomerDetails from '../utils/customers/extractCutomerDetails.js';
 import { checkToken } from './tokenHandler.js';
 import { updateReplenishmentFlags } from '../services/replenishmentService.js';
+import { fetchOrderDetailsAllPages } from './PageLogic/fetchOrderDetailsPage.js';
 
 export interface Token {
     access_token: string;
@@ -66,6 +67,15 @@ const fetchAndUpdateFlagsByClient = async(customerId) => {
     console.log("Updated replenishment data for client ID:", customerId)
 }
 
+const fetchOrdersShippedByDateRange = async (accessToken) => {
+    try {
+        const result = await fetchOrderDetailsAllPages(accessToken);
+        console.log("FETCHED ALL ORDERS DATA", result)
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+};
 
 
-export { fetchAndProcessStorageData, fetchEndpoint, fetchAllCustomerNames, fetchAndUpdateFlagsByClient  };
+export { fetchAndProcessStorageData, fetchEndpoint, fetchAllCustomerNames, fetchAndUpdateFlagsByClient,fetchOrdersShippedByDateRange  };

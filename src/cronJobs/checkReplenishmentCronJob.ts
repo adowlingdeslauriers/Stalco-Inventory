@@ -4,13 +4,13 @@ import { sendEmail } from "../utils/smtp/emailSender.js"
 import { fetchAndUpdateFlagsByClient } from "../3plApi/fetchingAPI.js"
 
 // Array of IDs to process
-const clientIds = ["1347", "84"]; // Add more IDs as needed
+const clientIds = ["39","1347", "84", "1337", "1244", "1241"]; // Add more IDs as needed
 
 
 
 export const checkReplenishmentCronJob = () => {
-// Schedule cron job to run every 12 hours
-cron.schedule('0 */12 * * *', async () => {
+// Schedule cron job to run everyday at 6am
+cron.schedule('0 6 * * *', async () => {
     console.log('Running fetchAndUpdateFlagsByClient in parallel...');
     try {
       // Run fetchAndUpdateFlagsByClient in parallel for each ID
