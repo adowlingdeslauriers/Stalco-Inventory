@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 8000;
 
 const limiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
-  max: 1000, // Limit each IP to 1000 requests per `window` (here, per day)
+  max: 10000, // Limit each IP to 1000 requests per `window` (here, per day)
   message: 'You have exceeded the 1000 requests in 24 hrs limit!', 
   headers: true,
 });
