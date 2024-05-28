@@ -5,7 +5,6 @@ let tokenExpires = null;
 
 export const getToken = async (authKey, tpl, userLoginId) => {
 
-  console.log("AUTHKEY", authKey)
   try {
     const response = await axios.post(
       'https://secure-wms.com/AuthServer/api/Token',

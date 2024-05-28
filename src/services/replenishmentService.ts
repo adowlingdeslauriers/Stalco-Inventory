@@ -19,7 +19,7 @@ export async function updateReplenishmentFlags(apiData: InventoryResult, clientI
         return;
     }
 
-    console.log("Here is the APIdata", apiData);
+    // console.log("Here is the APIdata", apiData);
     const skus = Object.keys(apiData);
     if (!skus.length) {
         return;

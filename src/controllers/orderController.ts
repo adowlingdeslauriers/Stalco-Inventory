@@ -20,7 +20,7 @@ const getOrdersByDateRange = asyncHandler(async (req: Request, res: Response) =>
 
     try {
         const finalResult = await fetchOrdersShippedByDateRange(accessToken);
-        console.log("Processed inventory data:", finalResult);
+        // console.log("Processed inventory data:", finalResult);
         res.send(finalResult)
         // await updateReplenishmentFlags(finalResult.detail, customerId );
 

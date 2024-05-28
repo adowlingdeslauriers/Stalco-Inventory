@@ -1,10 +1,8 @@
-// import { CLIENT_RENEG_LIMIT } from "tls";
 import { fetchAndProcessStorageData, Token } from "../3plApi/fetchingAPI.js";
 import { checkToken } from "../3plApi/tokenHandler.js";
 import asyncHandler from "../middleware/asyncHandler.js";
 import { Request, Response } from 'express';
-import { checkReplenishmentFlags, updateReplenishmentFlags } from "../services/replenishmentService.js";
-import { sendEmail } from "../utils/smtp/emailSender.js";
+
 
 const authKey: string = process.env.AUTH_KEY as string;
 const tpl: string = process.env.TPL as string;
@@ -21,9 +19,8 @@ const getStorageDetailsByClient = asyncHandler(async (req: Request, res: Respons
 
     try {
         const finalResult = await fetchAndProcessStorageData(accessToken, customerId);
-        console.log("Processed inventory data:", finalResult);
+        // console.log("Processed inventory data:", finalResult);  -> to display the data being sent
         res.send(finalResult)
-        // await updateReplenishmentFlags(finalResult.detail, customerId );
 
 
     } catch (error) {

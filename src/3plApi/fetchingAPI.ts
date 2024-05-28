@@ -7,6 +7,8 @@ import extractCustomerDetails from '../utils/customers/extractCutomerDetails.js'
 import { checkToken } from './tokenHandler.js';
 import { updateReplenishmentFlags } from '../services/replenishmentService.js';
 import { fetchOrderDetailsAllPages } from './PageLogic/fetchOrderDetailsPage.js';
+import SkuInfo from '../models/skuInfoModel.js';
+import { cache } from '../cache/cache.js';
 
 export interface Token {
     access_token: string;
@@ -46,6 +48,7 @@ const fetchAndProcessStorageData = async (accessToken, customerId) => {
     }
 };
 
+
 const fetchAllCustomerNames = async(accessToken) => {
     try {
         const result = await fetchCustomerDetailAllPages(accessToken);
@@ -77,5 +80,41 @@ const fetchOrdersShippedByDateRange = async (accessToken) => {
     }
 };
 
+const fetchAndProcessStorageDataCapacity = async (accessToken, customerId) => {
+    try {
+        const result = await fetchStockDetailAllPages(accessToken,customerId);
+        // console.log("FETCHED ALL DATA", result)
+        return separateOffSiteInventory(result);
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+};
 
-export { fetchAndProcessStorageData, fetchEndpoint, fetchAllCustomerNames, fetchAndUpdateFlagsByClient,fetchOrdersShippedByDateRange  };
+const fetchAndCalcCapacityUtilization = async (customerId) => {
+    const token: Token = await checkToken(authKey, tpl, userLoginId);
+    const accessToken: string = token.access_token;
+    const result = await fetchAndProcessStorageData(accessToken, customerId);
+
+    console.log("Updated replenishment data for client ID:", customerId)
+}
+
+const fetchAndCacheSkuInfoData = async () => {
+    const cacheKey = "skuInfoData";
+
+    // Try to get data from the cache
+    let skuInfoData = cache.get(cacheKey);
+
+    if (!skuInfoData) {
+        // Data is not in the cache, fetch it from the database
+        skuInfoData = await SkuInfo.find();
+
+        // Store the fetched data in the cache
+        cache.set(cacheKey, skuInfoData);
+    } else {
+        console.log("SkuInfoData retrieved from cache");
+    }
+
+    return skuInfoData;
+};
+export { fetchAndProcessStorageData, fetchEndpoint, fetchAllCustomerNames, fetchAndUpdateFlagsByClient,fetchOrdersShippedByDateRange,fetchAndCacheSkuInfoData  };

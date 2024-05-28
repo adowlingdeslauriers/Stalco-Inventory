@@ -50,7 +50,7 @@ export async function sendEmail(data: any): Promise<void> {
   // Email content
   let mailOptions = {
     from: 'stalco3pl@gmail.com',
-    to: 'inventory@stalco.ca', // Email address you want to send to
+    to: 'rehan@stalco.ca', // Email address you want to send to
     subject: 'Replenishment Flags Data',
     text: 'Automated',
     html: generateHTMLTable(data), // Convert data to string for email body
