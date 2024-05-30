@@ -43,6 +43,6 @@ skuInfoSchema.pre<ISKUINFO>('save', function (next) {
   next();
 });
 
-const Capacity: Model<ISKUINFO> = mongoose.model<ISKUINFO>('Capacity', skuInfoSchema);
+const SkuInfo: Model<ISKUINFO> = mongoose.model<ISKUINFO>('SkuInfo', skuInfoSchema);
 
-export default Capacity;
+export default SkuInfo;
