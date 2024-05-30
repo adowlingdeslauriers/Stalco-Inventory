@@ -82,13 +82,10 @@ export const getReplenishmentsWhereFlagIsTrue = asyncHandler(async (req: Request
 
 export const getReplenishmentsByClientWithFlagTrue = asyncHandler(async (req: Request, res: Response) => {
   const { clientId } = req.params;
-  console.log(clientId)
   await fetchAndUpdateFlagsByClient(clientId)
   const replenishments = await Replenishment.find({ clientId: clientId, flag: true });
   res.status(200).json(replenishments);
 });
-
-
 
 
 // export const updateReplenishment = asyncHandler(async (req, res, next) => {

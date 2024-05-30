@@ -36,7 +36,7 @@ export interface SeparatedInventory {
     detail: InventoryResult;
 }
 
-const separateOffSiteInventory = (data: InventoryData[], capacityData: { [key: string]: number }): SeparatedInventory => {
+const separateOffSiteInventoryForCapacity = (data: InventoryData[], capacityData: { [key: string]: number }): SeparatedInventory => {
 
     const result: InventoryResult = {};
     let claysonTotal = 0;
@@ -65,14 +65,14 @@ const separateOffSiteInventory = (data: InventoryData[], capacityData: { [key: s
         skuRecord[key] = currentQuantity + quantity;
 
         // Calculate the number of pallets for Clayson or WHL
-        if (capacityData[sku]) {
+        if (capacityData[sku] && capacityData[sku] != 0) {
             if (isClayson) {
                 const currentPallets = skuRecord['noOfPalletsClayson'] || 0;
-                skuRecord['noOfPalletsClayson'] = currentPallets + quantity / capacityData[sku];
+                skuRecord['noOfPalletsClayson'] = Number((currentPallets + quantity / capacityData[sku]).toFixed(2));
                 claysonPalletsTotal += quantity / capacityData[sku];
             } else {
                 const currentPallets = skuRecord['noOfPalletsWHL'] || 0;
-                skuRecord['noOfPalletsWHL'] = currentPallets + quantity / capacityData[sku];
+                skuRecord['noOfPalletsWHL'] = Number((currentPallets + quantity / capacityData[sku]).toFixed(2));
                 whlPalletsTotal += quantity / capacityData[sku];
             }
         }
@@ -90,11 +90,12 @@ const separateOffSiteInventory = (data: InventoryData[], capacityData: { [key: s
             Total: claysonTotal + whlTotal,
             Clayson: claysonTotal,
             WHL: whlTotal,
-            ClaysonPalletsTotal: claysonPalletsTotal,
-            WhlPalletsTotal: whlPalletsTotal
+            ClaysonPalletsTotal: parseFloat(claysonPalletsTotal.toFixed(2)), // Formatting to two decimal places
+            WhlPalletsTotal: parseFloat(whlPalletsTotal.toFixed(2))
         },
         detail: result
     };
+    
 };
 
-export default separateOffSiteInventory;
+export default separateOffSiteInventoryForCapacity;

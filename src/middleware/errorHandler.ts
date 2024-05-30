@@ -1,10 +1,10 @@
-// src/middleware/errorHandler.ts
 import { Request, Response, NextFunction } from "express";
-import { ApplicationError, NotFoundError } from "../utils/errors/errors.js"
+import { ApplicationError, NotFoundError } from "../utils/errors/errors.js";
+
+
 
 export const errorHandler = (err: ApplicationError | any, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof ApplicationError) {
-    // Log the error internally
     console.error(err);
 
     return res.status(err.statusCode).json({
@@ -16,7 +16,16 @@ export const errorHandler = (err: ApplicationError | any, req: Request, res: Res
     });
   }
 
-  // Handle programming or unknown errors
+  if (err.status === 429) {
+    console.error('Rate Limit Exceeded:', err);
+
+    return res.status(429).json({
+      success: false,
+      error: 'RateLimitExceeded',
+      message: err.message || 'Too many requests, please try again later.'
+    });
+  }
+
   console.error('Unexpected Error:', err);
   res.status(500).json({
     success: false,
@@ -26,7 +35,6 @@ export const errorHandler = (err: ApplicationError | any, req: Request, res: Res
   });
 };
 
-// Not found middleware to catch undefined routes
 export const notFound = (req: Request, res: Response, next: NextFunction) => {
   next(new NotFoundError(`Not Found - ${req.originalUrl}`));
 };

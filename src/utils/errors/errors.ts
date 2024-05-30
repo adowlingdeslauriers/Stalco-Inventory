@@ -31,4 +31,10 @@ export class ApplicationError extends Error {
       super(400, message, 'BadRequestError');
     }
   }
+
+  export class RateLimitError extends ApplicationError {
+    constructor(message: string = 'Rate limit exceeded') {
+      super(429, 'RateLimitError', message);
+    }
+  }
   

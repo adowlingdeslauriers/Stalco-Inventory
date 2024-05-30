@@ -7,8 +7,10 @@ import extractCustomerDetails from '../utils/customers/extractCutomerDetails.js'
 import { checkToken } from './tokenHandler.js';
 import { updateReplenishmentFlags } from '../services/replenishmentService.js';
 import { fetchOrderDetailsAllPages } from './PageLogic/fetchOrderDetailsPage.js';
-import SkuInfo from '../models/skuInfoModel.js';
-import { cache } from '../cache/cache.js';
+import separateOffSiteInventoryForCapacity from '../utils/inventory/separateOffSiteInventoryForCapacity.js';
+import { fetchAndCacheSkuInfoData } from '../services/fetchAndCacheService.js';
+import { SkuQtyMap } from '../utils/skuInfo/convertSkutoQtyMap.js';
+
 
 export interface Token {
     access_token: string;
@@ -17,6 +19,10 @@ export interface Token {
 const authKey: string = process.env.AUTH_KEY as string;
 const tpl: string = process.env.TPL as string;
 const userLoginId: string = process.env.USER_LOGIN_ID as string
+
+let apiCallCount = 0;
+const maxApiCallsPerDay = 5000;
+let lastResetTime = Date.now();
 
 const fetchEndpoint = async (url, accessToken) => {
     const headers = {
@@ -27,8 +33,21 @@ const fetchEndpoint = async (url, accessToken) => {
         'Accept-Language': 'en-US,en;q=0.8',
     };
 
+    // Reset the counter if it's a new day
+    if (Date.now() - lastResetTime > 24 * 60 * 60 * 1000) {
+        apiCallCount = 0;
+        lastResetTime = Date.now();
+    }
+
+    if (apiCallCount >= maxApiCallsPerDay) {
+        console.error('API call limit reached for today');
+        throw new Error('API call limit reached for today');
+    }
+
     try {
         const response = await axios.get(url, { headers });
+        apiCallCount += 1;
+        console.log("Total API calls today", apiCallCount)
         return response.data;
     } catch (error) {
         console.error('Error fetching endpoint:', error);
@@ -80,41 +99,28 @@ const fetchOrdersShippedByDateRange = async (accessToken) => {
     }
 };
 
+
 const fetchAndProcessStorageDataCapacity = async (accessToken, customerId) => {
     try {
         const result = await fetchStockDetailAllPages(accessToken,customerId);
         // console.log("FETCHED ALL DATA", result)
-        return separateOffSiteInventory(result);
+        const SkuInfoData : SkuQtyMap = await fetchAndCacheSkuInfoData();
+        return separateOffSiteInventoryForCapacity(result, SkuInfoData);
     } catch (error) {
         console.error('Error:', error);
         throw error;
     }
 };
 
-const fetchAndCalcCapacityUtilization = async (customerId) => {
+const fetchAndUpdateFlagsAndCalcCapacityUtilizationByClient = async(customerId) => {
     const token: Token = await checkToken(authKey, tpl, userLoginId);
     const accessToken: string = token.access_token;
-    const result = await fetchAndProcessStorageData(accessToken, customerId);
-
+    const result = await fetchAndProcessStorageDataCapacity(accessToken, customerId);
+    
+    await updateReplenishmentFlags(result.detail, customerId );
     console.log("Updated replenishment data for client ID:", customerId)
 }
 
-const fetchAndCacheSkuInfoData = async () => {
-    const cacheKey = "skuInfoData";
 
-    // Try to get data from the cache
-    let skuInfoData = cache.get(cacheKey);
 
-    if (!skuInfoData) {
-        // Data is not in the cache, fetch it from the database
-        skuInfoData = await SkuInfo.find();
-
-        // Store the fetched data in the cache
-        cache.set(cacheKey, skuInfoData);
-    } else {
-        console.log("SkuInfoData retrieved from cache");
-    }
-
-    return skuInfoData;
-};
-export { fetchAndProcessStorageData, fetchEndpoint, fetchAllCustomerNames, fetchAndUpdateFlagsByClient,fetchOrdersShippedByDateRange,fetchAndCacheSkuInfoData  };
+export { fetchAndProcessStorageData, fetchEndpoint, fetchAllCustomerNames, fetchAndUpdateFlagsByClient,fetchOrdersShippedByDateRange,fetchAndProcessStorageDataCapacity,fetchAndUpdateFlagsAndCalcCapacityUtilizationByClient  };

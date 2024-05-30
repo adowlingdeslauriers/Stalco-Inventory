@@ -10,7 +10,7 @@ const clientIds = ["39","1347", "84", "1337", "1244", "1241"]; // Add more IDs a
 
 export const checkReplenishmentCronJob = () => {
 // Schedule cron job to run everyday at 6am
-cron.schedule('*/40 * * * *', async () => {
+cron.schedule('0 6 * * *', async () => {
     console.log('Running fetchAndUpdateFlagsByClient in parallel...');
     try {
       // Run fetchAndUpdateFlagsByClient in parallel for each ID

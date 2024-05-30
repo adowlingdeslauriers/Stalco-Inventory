@@ -6,6 +6,7 @@ export interface ICapacity extends Document {
   claysonQty: number;
   whlQty: number;
   totalQty: number;
+  totalUtilizationPercentage:number;
 }
 
  const capacitySchema: Schema<ICapacity> = new Schema<ICapacity>({
@@ -31,6 +32,10 @@ export interface ICapacity extends Document {
     type: Number,
     required: true,
   },
+  totalUtilizationPercentage: {
+    type: Number,
+    required: true
+  }
 
 });
 

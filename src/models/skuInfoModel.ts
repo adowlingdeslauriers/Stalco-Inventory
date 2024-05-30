@@ -8,7 +8,7 @@ export interface ISKUINFO extends Document {
   qtyPerPallet: number;
 }
 
- const skuInfoSchema: Schema<ISKUINFO> = new Schema<ISKUINFO>({
+const skuInfoSchema: Schema<ISKUINFO> = new Schema<ISKUINFO>({
   sku: {
     type: String,
     required: true,
@@ -31,7 +31,16 @@ export interface ISKUINFO extends Document {
     type: Number,
     required: true,
   },
+});
 
+// Add pre-save hook
+skuInfoSchema.pre<ISKUINFO>('save', function (next) {
+  if (this.qtyPerPallet === 0) {
+    this.isSet = false;
+  } else {
+    this.isSet = true;
+  }
+  next();
 });
 
 const Capacity: Model<ISKUINFO> = mongoose.model<ISKUINFO>('Capacity', skuInfoSchema);
