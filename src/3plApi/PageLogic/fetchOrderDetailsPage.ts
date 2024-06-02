@@ -74,10 +74,10 @@ const fetchOrderDetailsAllPages = async (accessToken, concurrency = 100) => {
     }
 
     // Save the data to a CSV file
-    const filterData = filterOrdersData(allData)
-    await saveDataToCSV(filterData);
+    // const filterData = filterOrdersData(allData)
+    // await saveDataToCSV(filterData);
 
-    return filterData;
+    return allData;
 };
 
 // Function to save data to a CSV file

@@ -23,6 +23,7 @@ const getAllCustomers = asyncHandler(async (req: Request, res: Response) => {
         // If no cached data, fetch from API
         const token: Token = await checkToken(authKey, tpl, userLoginId);
         const accessToken: string = token.access_token;
+        console.log(accessToken);
 
         try {
             const finalResult = await fetchAllCustomerNames(accessToken);
