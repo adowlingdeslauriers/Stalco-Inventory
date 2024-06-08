@@ -6,12 +6,12 @@ import { fileURLToPath } from 'url';
 import { filterOrdersData } from "../../utils/orders/filterOrderData.js";
 
 // Define __dirname for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 // Function to fetch a single page
-const fetchOrderDetailsPage = async (pageNumber, pageSize, accessToken) => {
-    const url = `https://secure-wms.com/orders?pgsiz=${pageSize}&pgnum=${pageNumber}&rql=readonly.processDate=gt=2024-04-01T17:16:00;readonly.processDate=lt=2024-04-30T17:17:59&detail=All&itemdetail=All`;
+const fetchOrderDetailsPage = async (pageNumber, pageSize, accessToken, startDate, endDate) => {
+    const url = `https://secure-wms.com/orders?pgsiz=${pageSize}&pgnum=${pageNumber}&rql=readonly.processDate=gt=${startDate};readonly.processDate=lt=${endDate}&detail=All&itemdetail=All`;
     try {
         const data = await fetchEndpoint(url, accessToken);
         if (!data || !data._embedded) {
@@ -32,7 +32,7 @@ const fetchOrderDetailsPage = async (pageNumber, pageSize, accessToken) => {
 };
 
 // Function to fetch all pages concurrently
-const fetchOrderDetailsAllPages = async (accessToken, concurrency = 100) => {
+const fetchOrderDetailsAllPages = async (accessToken, startDate, endDate,  concurrency = 100) => {
     let totalResults = 0;
     let totalPages = 0;
     const pageSize = 1000;
@@ -40,7 +40,7 @@ const fetchOrderDetailsAllPages = async (accessToken, concurrency = 100) => {
 
     try { 
         // Fetch the first page to get the total number of results
-        const firstFetch = await fetchOrderDetailsPage(1, 1, accessToken);
+        const firstFetch = await fetchOrderDetailsPage(1, 1, accessToken, startDate, endDate);
         totalResults = firstFetch.totalResults;
         totalPages = Math.ceil(totalResults / pageSize);
 
@@ -51,7 +51,7 @@ const fetchOrderDetailsAllPages = async (accessToken, concurrency = 100) => {
         const fetchPagesInBatches = async (startPage, endPage) => {
             const pagePromises = [];
             for (let page = startPage; page <= endPage; page++) {
-                pagePromises.push(fetchOrderDetailsPage(page, pageSize, accessToken));
+                pagePromises.push(fetchOrderDetailsPage(page, pageSize, accessToken, startDate, endDate));
                 console.log("Fetching page :" ,page)
             }
             console.log("Fetching a batch");
@@ -81,25 +81,25 @@ const fetchOrderDetailsAllPages = async (accessToken, concurrency = 100) => {
 };
 
 // Function to save data to a CSV file
-const saveDataToCSV = async (data) => {
-    const monthName = "April"; // Replace this with logic to determine the correct month name
-    const filePath = path.join(__dirname, 'Data', `${monthName}.csv`);
+// const saveDataToCSV = async (data) => {
+//     const monthName = "April"; // Replace this with logic to determine the correct month name
+//     const filePath = path.join(__dirname, 'Data', `${monthName}.csv`);
 
-    // Create the directory if it doesn't exist
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+//     // Create the directory if it doesn't exist
+//     fs.mkdirSync(path.dirname(filePath), { recursive: true });
 
-    const csvWriter = createObjectCsvWriter({
-        path: filePath,
-        header: Object.keys(data[0] || {}).map(key => ({ id: key, title: key }))
-    });
+//     const csvWriter = createObjectCsvWriter({
+//         path: filePath,
+//         header: Object.keys(data[0] || {}).map(key => ({ id: key, title: key }))
+//     });
 
-    try {
-        await csvWriter.writeRecords(data);
-        console.log(`Data successfully saved to ${filePath}`);
-    } catch (error) {
-        console.error(`Error saving data to CSV: ${error.message}`);
-        throw error;
-    }
-};
+//     try {
+//         await csvWriter.writeRecords(data);
+//         console.log(`Data successfully saved to ${filePath}`);
+//     } catch (error) {
+//         console.error(`Error saving data to CSV: ${error.message}`);
+//         throw error;
+//     }
+// };
 
 export { fetchOrderDetailsAllPages, fetchOrderDetailsPage };

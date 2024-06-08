@@ -1,5 +1,6 @@
 // src/config/database.js
-import {Pool} from "pg"
+import pkg from 'pg';
+const { Pool } = pkg;
 
 export const pool = new Pool({
   host: process.env.DB_HOST,
@@ -9,4 +10,16 @@ export const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
+
+export const connectSQLDB = async () => {
+    try {
+        pool.connect()
+        .then(() => console.log('Connected to PostgreSQL database!'))
+        .catch(err => console.error('Connection error:', err.stack));
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+      process.exit(1);
+    }
+  };
+  
 

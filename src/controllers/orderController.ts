@@ -19,7 +19,7 @@ const getOrdersByDateRange = asyncHandler(async (req: Request, res: Response) =>
     //  let url: string = "https://secure-wms.com/orders?pgsiz=1000&pgnum=1&rql=readonly.processDate=gt=2024-04-11T17:16:00;readonly.processDate=lt=2024-04-30T17:17:59&detail=All&itemdetail=All";
 
     try {
-        const finalResult = await fetchOrdersShippedByDateRange(accessToken);
+        const finalResult = await fetchOrdersShippedByDateRange(accessToken, "2024-04-11T17:16:00", "2024-04-30T17:17:59", 100);
         // console.log("Processed inventory data:", finalResult);
         res.send(finalResult)
 

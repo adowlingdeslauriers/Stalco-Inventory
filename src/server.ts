@@ -12,7 +12,13 @@ import orderRoutes from "./routes/orderRoutes.js"
 
 import { checkReplenishmentCronJob } from "./cronJobs/checkReplenishmentCronJob.js";
 import connectDB from "./config/db.js";
+import {connectSQLDB} from "./config/sqlDb.js"
 import { RateLimitError } from "./utils/errors/errors.js";
+import { startInitialETL } from "./ETL/initialOrdersETL.js";
+import { createTables, insertSample } from "./schema/init.js";
+// import { createTables, insertSample } from "./schema/init.js";
+
+
 
 const PORT = process.env.PORT || 8000;
 
@@ -35,6 +41,7 @@ const minuteLimiter = rateLimit({
   message: 'Too many requests from this IP, please try again after a minute.',
   handler: (req, res, next, options) => {
     next(new RateLimitError(options.message));
+
   }
 });
 
@@ -44,6 +51,10 @@ const app = express();
 checkReplenishmentCronJob();
 
 connectDB();
+connectSQLDB();
+startInitialETL();
+//  createTables();
+// insertSample();
 
 app.use(dailyLimiter);
 app.use(minuteLimiter);

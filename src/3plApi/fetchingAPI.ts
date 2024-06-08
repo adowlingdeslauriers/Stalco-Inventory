@@ -89,10 +89,10 @@ const fetchAndUpdateFlagsByClient = async(customerId) => {
     console.log("Updated replenishment data for client ID:", customerId)
 }
 
-const fetchOrdersShippedByDateRange = async (accessToken) => {
+const fetchOrdersShippedByDateRange = async (accessToken, startDate, endDate, concurrency) => {
     try {
-        const result = await fetchOrderDetailsAllPages(accessToken);
-        console.log("FETCHED ALL ORDERS DATA", result)
+        const result = await fetchOrderDetailsAllPages(accessToken, startDate, endDate, concurrency);
+        return result;
     } catch (error) {
         console.error('Error:', error);
         throw error;
