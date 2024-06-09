@@ -2,7 +2,7 @@ import { PoolClient } from "pg";
 import { pool } from "../config/sqlDb.js";
 import { Token,  fetchOrdersShippedByDateRange } from "../3plApi/fetchingAPI.js";
 import { checkToken } from "../3plApi/tokenHandler.js";
-import { addMonths, subDays, startOfMonth, endOfMonth, format } from 'date-fns';
+import { addMonths, subDays,  endOfMonth, format } from 'date-fns';
 
 const BATCH_SIZE = 10000;
 const authKey: string = process.env.AUTH_KEY as string;
@@ -356,7 +356,7 @@ const generateMonthlyChunks = (start: string, end: string): Array<{ start: strin
     while (currentStart < endDate) {
         const currentEnd = endOfMonth(currentStart);
         chunks.push({
-            start: format(startOfMonth(currentStart), "yyyy-MM-dd'T'00:00:00"),
+            start: format(currentStart, "yyyy-MM-dd'T'00:00:00"),
             end: format(currentEnd < endDate ? currentEnd : endDate, "yyyy-MM-dd'T'23:59:59")
         });
         currentStart = addMonths(currentStart, 1);
@@ -365,14 +365,15 @@ const generateMonthlyChunks = (start: string, end: string): Array<{ start: strin
     return chunks;
 };
 
-export const startOrdersETL = async (): Promise<void> => {
+export const startOrdersETL = async (startDateTime, endDateTime, concurrency): Promise<void> => {
     try {
-        const monthlyChunks = generateMonthlyChunks("2024-06-08T00:00:00", "2024-06-08T23:59:59");
+        // const monthlyChunks = generateMonthlyChunks("2024-06-08T00:00:00", "2024-06-08T23:59:59");
+        const monthlyChunks = generateMonthlyChunks(startDateTime, endDateTime);
 
         for (const chunk of monthlyChunks) {
             try {
                 console.log(`Starting to fetch orders for period ${chunk.start} to ${chunk.end}`)
-                await extractData(chunk.start, chunk.end, 100);
+                // await extractData(chunk.start, chunk.end, concurrency);
                 await new Promise(resolve => setTimeout(resolve, 10000));
             } catch (error) {
                 console.error(`Error extracting data for period ${chunk.start} to ${chunk.end}: `, error);

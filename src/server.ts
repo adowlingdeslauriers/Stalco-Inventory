@@ -14,7 +14,8 @@ import { checkReplenishmentCronJob } from "./cronJobs/checkReplenishmentCronJob.
 import connectDB from "./config/db.js";
 import {connectSQLDB} from "./config/sqlDb.js"
 import { RateLimitError } from "./utils/errors/errors.js";
-import { startOrdersETL } from "./ETL/OrdersETL.js";
+// import { startOrdersETL } from "./ETL/OrdersETL.js";
+// import { exampleRun } from "./cronJobs/dailyOrdersETL.js";
 // import { createTables } from "./schema/init.js";
 // import {  insertSample } from "./schema/init.js";
 
@@ -52,6 +53,7 @@ checkReplenishmentCronJob();
 
 connectDB();
 connectSQLDB();
+// exampleRun();
 // startOrdersETL();
 //  createTables();
 // insertSample();
