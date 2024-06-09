@@ -10,7 +10,7 @@ export const createTables = async () => {
       
       CREATE TABLE IF NOT EXISTS Orders (
         client_id VARCHAR(255),
-        date TIMESTAMP,
+        date DATE,
         total_orders INT NOT NULL,
         canada INT DEFAULT 0,
         US INT DEFAULT 0,
@@ -31,7 +31,7 @@ export const createTables = async () => {
       
       CREATE TABLE IF NOT EXISTS RegionShipped (
         client_id VARCHAR(255),
-        date TIMESTAMP,
+        date DATE,
         country VARCHAR(255) NOT NULL,
         state_province VARCHAR(255),
         total_orders INT NOT NULL,
@@ -43,7 +43,7 @@ export const createTables = async () => {
         client_id VARCHAR(255),
         retailer_id INT,
         sku VARCHAR(255),
-        date TIMESTAMP,
+        date DATE,
         total_orders INT NOT NULL,
         total_units INT NOT NULL,
         PRIMARY KEY (client_id, sku, date),

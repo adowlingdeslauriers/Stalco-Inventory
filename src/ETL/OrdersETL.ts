@@ -1,16 +1,13 @@
 import { PoolClient } from "pg";
 import { pool } from "../config/sqlDb.js";
-import { Token, fetchEndpoint, fetchOrdersShippedByDateRange } from "../3plApi/fetchingAPI.js";
+import { Token,  fetchOrdersShippedByDateRange } from "../3plApi/fetchingAPI.js";
 import { checkToken } from "../3plApi/tokenHandler.js";
+import { addMonths, subDays, startOfMonth, endOfMonth, format } from 'date-fns';
 
 const BATCH_SIZE = 10000;
 const authKey: string = process.env.AUTH_KEY as string;
 const tpl: string = process.env.TPL as string;
 const userLoginId: string = process.env.USER_LOGIN_ID as string
-
-
-
-
 
 interface Order {
     readOnly: {
@@ -290,14 +287,12 @@ let found = false
             }
     }
 
-    (carrier == 'do not ship' || order.routingInfo?.trackingNumber?.toLowerCase().includes('internal')) && console.log("CARRIER", carrier )
-
-        if (order.shipTo.country === 'CA') {
-            aggregatedData[key].canada += 1;
+        if (carrier == 'do not ship' || order.routingInfo?.trackingNumber?.toLowerCase().includes('internal')) {  // or check TrackingNo equals 'internal' or referenceNo contains 'WO-WL'
+            aggregatedData[key].internal += 1;
         } else if (order.shipTo.country === 'US') {
             aggregatedData[key].us += 1;
-        } else if (carrier == 'do not ship' || order.routingInfo?.trackingNumber?.toLowerCase().includes('internal')) {  // or check TrackingNo equals 'internal' or referenceNo contains 'WO-WL'
-            aggregatedData[key].internal += 1;
+        } else if (order.shipTo.country === 'CA') {
+            aggregatedData[key].canada += 1;
         } else {
             aggregatedData[key].intl += 1;
         }
@@ -333,11 +328,58 @@ let found = false
     return aggregatedData;
 };
 
-export const startInitialETL = async (): Promise<void> => {
+// export const startOrdersETL = async (): Promise<void> => {
+//     try {
+//         await extractData("2024-04-01T00:00:00", "2024-04-30T23:59:59", 100);
+//         // await extractData("2024-04-11T17:16:00", "2024-05-11T17:17:59", 100);
+//     } catch (error) {
+//         console.error("Error in startOrdersETL: ", error);
+//     }
+// };
+
+
+
+const generateMonthlyChunks = (start: string, end: string): Array<{ start: string, end: string }> => {
+    const startDate = new Date(start);
+    let endDate = subDays(new Date(), 1); // Set end date to one day before the current day
+
+    // Adjust the initial end date to ensure it does not exceed the provided end date
+    const providedEndDate = new Date(end);
+    if (endDate > providedEndDate) {
+        endDate = providedEndDate;
+    }
+
+    const chunks = [];
+
+    let currentStart = startDate;
+
+    while (currentStart < endDate) {
+        const currentEnd = endOfMonth(currentStart);
+        chunks.push({
+            start: format(startOfMonth(currentStart), "yyyy-MM-dd'T'00:00:00"),
+            end: format(currentEnd < endDate ? currentEnd : endDate, "yyyy-MM-dd'T'23:59:59")
+        });
+        currentStart = addMonths(currentStart, 1);
+    }
+
+    return chunks;
+};
+
+export const startOrdersETL = async (): Promise<void> => {
     try {
-        await extractData("2024-04-01T00:00:00", "2024-04-01T23:59:59", 1);
-        // await extractData("2024-04-11T17:16:00", "2024-05-11T17:17:59", 100);
+        const monthlyChunks = generateMonthlyChunks("2024-06-08T00:00:00", "2024-06-08T23:59:59");
+
+        for (const chunk of monthlyChunks) {
+            try {
+                console.log(`Starting to fetch orders for period ${chunk.start} to ${chunk.end}`)
+                await extractData(chunk.start, chunk.end, 100);
+                await new Promise(resolve => setTimeout(resolve, 10000));
+            } catch (error) {
+                console.error(`Error extracting data for period ${chunk.start} to ${chunk.end}: `, error);
+                // Optionally, you can log the error or take additional action here
+            }
+        }
     } catch (error) {
-        console.error("Error in startInitialETL: ", error);
+        console.error("Error in startOrdersETL: ", error);
     }
 };
