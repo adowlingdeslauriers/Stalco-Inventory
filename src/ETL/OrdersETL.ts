@@ -330,7 +330,7 @@ let found = false
 
 // export const startOrdersETL = async (): Promise<void> => {
 //     try {
-//         await extractData("2024-04-01T00:00:00", "2024-04-30T23:59:59", 100);
+//         await extractData("2024-04-01T00:00:00", "2024-04-01T23:59:59", 100);
 //         // await extractData("2024-04-11T17:16:00", "2024-05-11T17:17:59", 100);
 //     } catch (error) {
 //         console.error("Error in startOrdersETL: ", error);
@@ -373,8 +373,8 @@ export const startOrdersETL = async (startDateTime, endDateTime, concurrency): P
         for (const chunk of monthlyChunks) {
             try {
                 console.log(`Starting to fetch orders for period ${chunk.start} to ${chunk.end}`)
-                // await extractData(chunk.start, chunk.end, concurrency);
-                await new Promise(resolve => setTimeout(resolve, 10000));
+                await extractData(chunk.start, chunk.end, concurrency);
+                // await new Promise(resolve => setTimeout(resolve, 10000));
             } catch (error) {
                 console.error(`Error extracting data for period ${chunk.start} to ${chunk.end}: `, error);
                 // Optionally, you can log the error or take additional action here

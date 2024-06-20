@@ -1,8 +1,8 @@
 import {pool} from "../config/sqlDb.js"
 
 export const createTables = async () => {
-    try {
-      await pool.query(`
+  try {
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS Customers (
         client_id VARCHAR(255) PRIMARY KEY,
         clientName VARCHAR(255) NOT NULL
@@ -13,21 +13,19 @@ export const createTables = async () => {
         date DATE,
         total_orders INT NOT NULL,
         canada INT DEFAULT 0,
-        US INT DEFAULT 0,
-        INTL INT DEFAULT 0,
-        Internal INT DEFAULT 0,
-        USPS INT DEFAULT 0,
-        DHL INT DEFAULT 0,
-        FEDEX INT DEFAULT 0,
-        UPS INT DEFAULT 0,
+        us INT DEFAULT 0,
+        intl INT DEFAULT 0,
+        internal INT DEFAULT 0,
+        usps INT DEFAULT 0,
+        dhl INT DEFAULT 0,
+        fedex INT DEFAULT 0,
+        ups INT DEFAULT 0,
         canada_post INT DEFAULT 0,
         other_carriers INT DEFAULT 0,
         avg_qty_per_order DECIMAL(10, 2) NOT NULL,
         PRIMARY KEY (client_id, date),
         FOREIGN KEY (client_id) REFERENCES Customers(client_id) ON DELETE CASCADE
-    );
-    
-    
+      );
       
       CREATE TABLE IF NOT EXISTS RegionShipped (
         client_id VARCHAR(255),
@@ -50,28 +48,26 @@ export const createTables = async () => {
         FOREIGN KEY (client_id) REFERENCES Customers(client_id) ON DELETE CASCADE
       );
       
-      CREATE INDEX idx_orders_client_id ON Orders(client_id);
-      CREATE INDEX idx_orders_date ON Orders(date);
+      CREATE INDEX IF NOT EXISTS idx_orders_client_id ON Orders(client_id);
+      CREATE INDEX IF NOT EXISTS idx_orders_date ON Orders(date);
       
-      CREATE INDEX idx_regionShipped_client_id ON RegionShipped(client_id);
-      CREATE INDEX idx_regionShipped_date ON RegionShipped(date);
-      CREATE INDEX idx_regionShipped_country ON RegionShipped(country);
-      CREATE INDEX idx_regionShipped_state_province ON RegionShipped(state_province);
+      CREATE INDEX IF NOT EXISTS idx_regionShipped_client_id ON RegionShipped(client_id);
+      CREATE INDEX IF NOT EXISTS idx_regionShipped_date ON RegionShipped(date);
+      CREATE INDEX IF NOT EXISTS idx_regionShipped_country ON RegionShipped(country);
+      CREATE INDEX IF NOT EXISTS idx_regionShipped_state_province ON RegionShipped(state_province);
       
-      CREATE INDEX idx_skuSales_client_id ON SkuSales(client_id);
-      CREATE INDEX idx_skuSales_retailer_id ON SkuSales(retailer_id);
-      CREATE INDEX idx_skuSales_sku ON SkuSales(sku);
-      CREATE INDEX idx_skuSales_date ON SkuSales(date);
-      
-      `);
-  
-      console.log('Tables created successfully');
-    } catch (error) {
-      console.error('Error creating tables:', error);
-    } finally {
-      await pool.end();
-    }
-  };
+      CREATE INDEX IF NOT EXISTS idx_skuSales_client_id ON SkuSales(client_id);
+      CREATE INDEX IF NOT EXISTS idx_skuSales_retailer_id ON SkuSales(retailer_id);
+      CREATE INDEX IF NOT EXISTS idx_skuSales_sku ON SkuSales(sku);
+      CREATE INDEX IF NOT EXISTS idx_skuSales_date ON SkuSales(date);
+    `);
+  } catch (error) {
+    console.error("Error creating tables: ", error);
+    throw error;
+  }
+};
+
+
 
 export const insertSample = async () => {
     try {

@@ -12,8 +12,11 @@ import orderRoutes from "./routes/orderRoutes.js"
 
 import { checkReplenishmentCronJob } from "./cronJobs/checkReplenishmentCronJob.js";
 import connectDB from "./config/db.js";
-import {connectSQLDB} from "./config/sqlDb.js"
+import {connectSQLDB, connectSequelizeDB, getTableDefinition} from "./config/sqlDb.js"
 import { RateLimitError } from "./utils/errors/errors.js";
+import { syncModels } from "./schema/sequelizeModels/syncModels.js";
+import { startOrdersETL } from "./ETL/OrdersETL.js";
+import { createTables } from "./schema/init.js";
 // import { startOrdersETL } from "./ETL/OrdersETL.js";
 // import { exampleRun } from "./cronJobs/dailyOrdersETL.js";
 // import { createTables } from "./schema/init.js";
@@ -53,8 +56,12 @@ checkReplenishmentCronJob();
 
 connectDB();
 connectSQLDB();
+connectSequelizeDB();
+
+// getTableDefinition();
+// syncModels();
 // exampleRun();
-// startOrdersETL();
+// startOrdersETL("2024-04-01T00:00:00", "2024-04-030T23:59:59",100);
 //  createTables();
 // insertSample();
 

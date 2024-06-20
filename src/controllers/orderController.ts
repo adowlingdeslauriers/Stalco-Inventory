@@ -1,32 +1,69 @@
-// import { CLIENT_RENEG_LIMIT } from "tls";
-import { fetchOrdersShippedByDateRange, Token } from "../3plApi/fetchingAPI.js";
-import { checkToken } from "../3plApi/tokenHandler.js";
-import asyncHandler from "../middleware/asyncHandler.js";
 import { Request, Response } from 'express';
+import asyncHandler from "../middleware/asyncHandler.js";
+import { Op } from 'sequelize';
+import Orders  from "../schema/sequelizeModels/ordersModel.js" 
+import Customers  from "../schema/sequelizeModels/customersModel.js" 
+import  RegionShipped  from "../schema/sequelizeModels/regionShippedModel.js" 
+import SkuSales from "../schema/sequelizeModels/skuSalesModel.js" 
 
 
-const authKey: string = process.env.AUTH_KEY as string;
-const tpl: string = process.env.TPL as string;
-const userLoginId: string = process.env.USER_LOGIN_ID as string
-
+let apiCount =0;
 const getOrdersByDateRange = asyncHandler(async (req: Request, res: Response) => {
-    
-//    const dateStart = "";
-//    const dateEnd = "";
-    const token: Token = await checkToken(authKey, tpl, userLoginId);
-    console.log(token.access_token);
-    const accessToken: string = token.access_token;
-    //  let url: string = "https://secure-wms.com/orders?pgsiz=1000&pgnum=1&rql=readonly.processDate=gt=2024-04-11T17:16:00;readonly.processDate=lt=2024-04-30T17:17:59&detail=All&itemdetail=All";
+    const { startDate, endDate } = req.query;
 
     try {
-        const finalResult = await fetchOrdersShippedByDateRange(accessToken, "2024-04-11T17:16:00", "2024-04-30T17:17:59", 100);
-        // console.log("Processed inventory data:", finalResult);
-        res.send(finalResult)
+
+        const orders = await Orders.findAll({
+            where: {
+                date: {
+                    [Op.between]: [startDate, endDate]
+                }
+            },
+            include: [Customers, RegionShipped, SkuSales]
+        });
+
+        res.send({ dbData: orders });
 
     } catch (error) {
         console.error('Error:', error);
-        res.status(500).send(error)
+        res.status(500).send(error);
     }
 });
 
-export default getOrdersByDateRange;
+const getOrdersLastSixMonths = asyncHandler(async (req: Request, res: Response) => {
+    apiCount++;
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 6);
+console.log("THIS API END PPOINT has been called : ", apiCount)
+    try {
+        const [orders, regionShipped, customers] = await Promise.all([
+            Orders.findAll({
+                where: {
+                    date: {
+                        [Op.between]: [startDate, endDate]
+                    }
+                },
+                // include: [Customers, RegionShipped, SkuSales]
+            }),
+            RegionShipped.findAll({
+                where: {
+                    date: {
+                        [Op.between]: [startDate, endDate]
+                    }
+                },
+                // include: [Customers, RegionShipped, SkuSales]
+            }),
+            Customers.findAll()
+        ]);
+
+        res.send({ dbData: { orders, regionShipped, customers } });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send(error);
+    }
+});
+
+
+
+export { getOrdersByDateRange, getOrdersLastSixMonths };
