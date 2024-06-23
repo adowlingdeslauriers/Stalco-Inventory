@@ -5,6 +5,7 @@ import Orders  from "../schema/sequelizeModels/ordersModel.js"
 import Customers  from "../schema/sequelizeModels/customersModel.js" 
 import  RegionShipped  from "../schema/sequelizeModels/regionShippedModel.js" 
 import SkuSales from "../schema/sequelizeModels/skuSalesModel.js" 
+import { dataTransformationOrdersDashboardFilter } from '../utils/ordersDashboard/dataTransform.js';
 
 
 let apiCount =0;
@@ -37,7 +38,7 @@ const getOrdersLastSixMonths = asyncHandler(async (req: Request, res: Response) 
     startDate.setMonth(startDate.getMonth() - 6);
 console.log("THIS API END PPOINT has been called : ", apiCount)
     try {
-        const [orders, regionShipped, customers] = await Promise.all([
+        const [orders, regionShipped, customers, skusales] = await Promise.all([
             Orders.findAll({
                 where: {
                     date: {
@@ -54,10 +55,20 @@ console.log("THIS API END PPOINT has been called : ", apiCount)
                 },
                 // include: [Customers, RegionShipped, SkuSales]
             }),
-            Customers.findAll()
+            Customers.findAll(),
+            SkuSales.findAll({
+                where: {
+                    date: {
+                        [Op.between]: [startDate, endDate]
+                    }
+                },
+                // include: [Customers, RegionShipped, SkuSales]
+            })
         ]);
 
-        res.send({ dbData: { orders, regionShipped, customers } });
+        const filterOptions = await dataTransformationOrdersDashboardFilter({orders, regionShipped, customers})
+
+        res.send({ dbData: { orders, regionShipped, customers, skusales, filterOptions } });
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send(error);
