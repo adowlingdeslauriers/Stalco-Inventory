@@ -18,6 +18,8 @@ export const dataTransformationOrdersDashboardFilter = (data) => {
     label: state // Assuming state/province codes are used directly as labels
   }));
 
+
+  
   // Filter customers whose IDs are in the orders data
   const customerIdsInOrders = getUniqueSortedValues(orders, 'client_id');
   const customerNameOptions = customers

@@ -61,7 +61,7 @@ connectSequelizeDB();
 // getTableDefinition();
 // syncModels();
 // exampleRun();
-// startOrdersETL("2024-04-01T00:00:00", "2024-04-030T23:59:59",100);
+// startOrdersETL("2024-01-01T00:00:00", "2024-03-31T23:59:59",100);
 //  createTables();
 // insertSample();
 

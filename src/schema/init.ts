@@ -3,11 +3,11 @@ import {pool} from "../config/sqlDb.js"
 export const createTables = async () => {
   try {
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS Customers (
-        client_id VARCHAR(255) PRIMARY KEY,
-        clientName VARCHAR(255) NOT NULL
-      );
-      
+
+    CREATE TABLE IF NOT EXISTS Customers (
+      client_id VARCHAR(255) PRIMARY KEY,
+      clientName VARCHAR(255) NOT NULL
+    );
       CREATE TABLE IF NOT EXISTS Orders (
         client_id VARCHAR(255),
         date DATE,
@@ -23,8 +23,7 @@ export const createTables = async () => {
         canada_post INT DEFAULT 0,
         other_carriers INT DEFAULT 0,
         avg_qty_per_order DECIMAL(10, 2) NOT NULL,
-        PRIMARY KEY (client_id, date),
-        FOREIGN KEY (client_id) REFERENCES Customers(client_id) ON DELETE CASCADE
+        PRIMARY KEY (client_id, date)
       );
       
       CREATE TABLE IF NOT EXISTS RegionShipped (
@@ -33,8 +32,7 @@ export const createTables = async () => {
         country VARCHAR(255) NOT NULL,
         state_province VARCHAR(255),
         total_orders INT NOT NULL,
-        PRIMARY KEY (client_id, date, country, state_province),
-        FOREIGN KEY (client_id) REFERENCES Customers(client_id) ON DELETE CASCADE
+        PRIMARY KEY (client_id, date, country, state_province)
       );
       
       CREATE TABLE IF NOT EXISTS SkuSales (
@@ -44,8 +42,7 @@ export const createTables = async () => {
         date DATE,
         total_orders INT NOT NULL,
         total_units INT NOT NULL,
-        PRIMARY KEY (client_id, sku, date),
-        FOREIGN KEY (client_id) REFERENCES Customers(client_id) ON DELETE CASCADE
+        PRIMARY KEY (client_id, sku, date)
       );
       
       CREATE INDEX IF NOT EXISTS idx_orders_client_id ON Orders(client_id);

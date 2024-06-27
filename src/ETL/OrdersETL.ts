@@ -2,7 +2,7 @@ import { PoolClient } from "pg";
 import { pool } from "../config/sqlDb.js";
 import { Token,  fetchOrdersShippedByDateRange } from "../3plApi/fetchingAPI.js";
 import { checkToken } from "../3plApi/tokenHandler.js";
-import { addMonths, subDays,  endOfMonth, format } from 'date-fns';
+import { addMonths, subDays,  endOfMonth, format, endOfWeek, addDays } from 'date-fns';
 
 const BATCH_SIZE = 10000;
 const authKey: string = process.env.AUTH_KEY as string;
@@ -328,16 +328,6 @@ let found = false
     return aggregatedData;
 };
 
-// export const startOrdersETL = async (): Promise<void> => {
-//     try {
-//         await extractData("2024-04-01T00:00:00", "2024-04-01T23:59:59", 100);
-//         // await extractData("2024-04-11T17:16:00", "2024-05-11T17:17:59", 100);
-//     } catch (error) {
-//         console.error("Error in startOrdersETL: ", error);
-//     }
-// };
-
-
 
 const generateMonthlyChunks = (start: string, end: string): Array<{ start: string, end: string }> => {
     const startDate = new Date(start);
@@ -364,13 +354,37 @@ const generateMonthlyChunks = (start: string, end: string): Array<{ start: strin
 
     return chunks;
 };
+const generateWeeklyChunks = (start: string, end: string): Array<{ start: string, end: string }> => {
+    const startDate = new Date(start);
+    let endDate = subDays(new Date(), 1); // Set end date to one day before the current day
 
+    // Adjust the initial end date to ensure it does not exceed the provided end date
+    const providedEndDate = new Date(end);
+    if (endDate > providedEndDate) {
+        endDate = providedEndDate;
+    }
+
+    const chunks = [];
+
+    let currentStart = startDate;
+
+    while (currentStart <= endDate) {
+        const currentEnd = endOfWeek(currentStart);
+        chunks.push({
+            start: format(currentStart, "yyyy-MM-dd'T'00:00:00"),
+            end: format(currentEnd < endDate ? currentEnd : endDate, "yyyy-MM-dd'T'23:59:59")
+        });
+        currentStart = addDays(currentEnd, 1);
+    }
+
+    return chunks;
+};
 export const startOrdersETL = async (startDateTime, endDateTime, concurrency): Promise<void> => {
     try {
-        // const monthlyChunks = generateMonthlyChunks("2024-06-08T00:00:00", "2024-06-08T23:59:59");
-        const monthlyChunks = generateMonthlyChunks(startDateTime, endDateTime);
+        // const monthlyChunks = generateMonthlyChunks(startDateTime, endDateTime); // monthly chunks causing heap overflow.
+        const weeklyChunks = generateWeeklyChunks(startDateTime, endDateTime);
 
-        for (const chunk of monthlyChunks) {
+        for (const chunk of weeklyChunks) {
             try {
                 console.log(`Starting to fetch orders for period ${chunk.start} to ${chunk.end}`)
                 await extractData(chunk.start, chunk.end, concurrency);

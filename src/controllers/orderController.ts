@@ -38,7 +38,7 @@ const getOrdersLastSixMonths = asyncHandler(async (req: Request, res: Response) 
     startDate.setMonth(startDate.getMonth() - 6);
 console.log("THIS API END PPOINT has been called : ", apiCount)
     try {
-        const [orders, regionShipped, customers, skusales] = await Promise.all([
+        const [orders, regionShipped, customers] = await Promise.all([
             Orders.findAll({
                 where: {
                     date: {
@@ -55,25 +55,50 @@ console.log("THIS API END PPOINT has been called : ", apiCount)
                 },
                 // include: [Customers, RegionShipped, SkuSales]
             }),
-            Customers.findAll(),
-            SkuSales.findAll({
-                where: {
-                    date: {
-                        [Op.between]: [startDate, endDate]
-                    }
-                },
-                // include: [Customers, RegionShipped, SkuSales]
-            })
+            Customers.findAll()
+            // SkuSales.findAll({
+            //     where: {
+            //         date: {
+            //             [Op.between]: [startDate, endDate]
+            //         }
+            //     },
+            //     // include: [Customers, RegionShipped, SkuSales]
+            // })
         ]);
 
         const filterOptions = await dataTransformationOrdersDashboardFilter({orders, regionShipped, customers})
 
-        res.send({ dbData: { orders, regionShipped, customers, skusales, filterOptions } });
+        res.send({ dbData: { orders, regionShipped, customers, filterOptions } });
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send(error);
     }
 });
+
+// const getOrderSalesLastSixMonths = asyncHandler(async (req: Request, res: Response) => {
+//     apiCount++;
+//     const endDate = new Date();
+//     const startDate = new Date();
+//     startDate.setMonth(startDate.getMonth() - 6);
+//     try {
+//         const [skusales] = await Promise.all([
+//             SkuSales.findAll({
+//                 where: {
+//                     date: {
+//                         [Op.between]: [startDate, endDate]
+//                     }
+//                 },
+//             })
+//         ]);
+
+//         const filterOptions = await dataTransformationOrdersDashboardFilter({skusales})
+
+//         res.send({ dbOrdersData: { skusales, filterOptions } });
+//     } catch (error) {
+//         console.error('Error:', error);
+//         res.status(500).send(error);
+//     }
+// });
 
 
 

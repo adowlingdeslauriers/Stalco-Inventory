@@ -9,7 +9,7 @@ const tpl: string = process.env.TPL as string;
 const userLoginId: string = process.env.USER_LOGIN_ID as string;
 
 // Initialize cache with a 24-hour TTL (time-to-live)
-const cache = new NodeCache({ stdTTL: 86400 });
+export const cache = new NodeCache({ stdTTL: 86400 });
 
 const getAllCustomers = asyncHandler(async (req: Request, res: Response) => {
     // Check if the data is already cached
