@@ -41,7 +41,7 @@ export const createTables = async () => {
         sku VARCHAR(255),
         date DATE,
         total_orders INT NOT NULL,
-        total_units INT NOT NULL,
+        total_units DECIMAL(10, 2) NOT NULL,
         PRIMARY KEY (client_id, sku, date)
       );
       

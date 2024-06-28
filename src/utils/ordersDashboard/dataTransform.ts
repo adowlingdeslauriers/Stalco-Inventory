@@ -19,7 +19,6 @@ export const dataTransformationOrdersDashboardFilter = (data) => {
   }));
 
 
-  
   // Filter customers whose IDs are in the orders data
   const customerIdsInOrders = getUniqueSortedValues(orders, 'client_id');
   const customerNameOptions = customers
