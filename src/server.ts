@@ -17,6 +17,7 @@ import { RateLimitError } from "./utils/errors/errors.js";
 import { syncModels } from "./schema/sequelizeModels/syncModels.js";
 import { startOrdersETL } from "./ETL/OrdersETL.js";
 import { createTables } from "./schema/init.js";
+import { dailyETLCronJob } from "./cronJobs/dailyOrdersETL.js";
 // import { startOrdersETL } from "./ETL/OrdersETL.js";
 // import { exampleRun } from "./cronJobs/dailyOrdersETL.js";
 // import { createTables } from "./schema/init.js";
@@ -52,7 +53,8 @@ const minuteLimiter = rateLimit({
 
 
 const app = express();
-checkReplenishmentCronJob();
+// checkReplenishmentCronJob();
+dailyETLCronJob();
 
 connectDB();
 connectSQLDB();
@@ -61,7 +63,7 @@ connectSequelizeDB();
 // getTableDefinition();
 // syncModels();
 // exampleRun();
-// startOrdersETL("2024-02-10T00:00:00", "2024-02-19T23:59:59",100);
+// startOrdersETL("2024-06-20T00:00:00", "2024-07-04T23:59:59",100);
 //  createTables();
 // insertSample();
 
