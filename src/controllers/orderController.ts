@@ -5,6 +5,8 @@ import Orders  from "../schema/sequelizeModels/ordersModel.js"
 import Customers  from "../schema/sequelizeModels/customersModel.js" 
 import  RegionShipped  from "../schema/sequelizeModels/regionShippedModel.js" 
 import SkuSales from "../schema/sequelizeModels/skuSalesModel.js" 
+import {  addDays, startOfWeek, subDays, subMonths } from 'date-fns';
+
 import { dataTransformationOrdersDashboardFilter } from '../utils/ordersDashboard/dataTransform.js';
 
 
@@ -75,16 +77,20 @@ const getOrdersByDateRange = asyncHandler(async (req: Request, res: Response) =>
 const getOrdersLastSixMonths = asyncHandler(async (req: Request, res: Response) => {
     apiCount++;
     const endDate = new Date();
-    const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - 6);
-    startDate.setDate(startDate.getDate() - 1);
+    // const startDate = new Date();
+    const yesterday = subDays(new Date(), 1);
+    const sixMonthsAgo = subMonths(yesterday, 6);
+    const startOfWeekAfterSixMonthsAgo = addDays(startOfWeek(sixMonthsAgo, { weekStartsOn: 1 }), 7); // Adding 7 days to get the start of the next week
+    
+    // startDate.setMonth(startDate.getMonth() - 6);
+    // startDate.setDate(startDate.getDate() - 1);
 console.log("THIS API END PPOINT has been called : ", apiCount)
     try {
         const [orders, regionShipped, customers] = await Promise.all([
             Orders.findAll({
                 where: {
                     date: {
-                        [Op.between]: [startDate, endDate]
+                        [Op.between]: [startOfWeekAfterSixMonthsAgo, endDate]
                     }
                 },
                 // include: [Customers, RegionShipped, SkuSales]
@@ -92,7 +98,7 @@ console.log("THIS API END PPOINT has been called : ", apiCount)
             RegionShipped.findAll({
                 where: {
                     date: {
-                        [Op.between]: [startDate, endDate]
+                        [Op.between]: [startOfWeekAfterSixMonthsAgo, endDate]
                     }
                 },
                 // include: [Customers, RegionShipped, SkuSales]
@@ -101,7 +107,7 @@ console.log("THIS API END PPOINT has been called : ", apiCount)
             // SkuSales.findAll({
             //     where: {
             //         date: {
-            //             [Op.between]: [startDate, endDate]
+            //             [Op.between]: [startOfWeekAfterSixMonthsAgo, endDate]
             //         }
             //     },
             //     // include: [Customers, RegionShipped, SkuSales]

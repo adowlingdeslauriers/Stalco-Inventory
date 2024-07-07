@@ -4,7 +4,7 @@ import { Sequelize } from 'sequelize';
 const { Pool } = pkg;
 
 
-// process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 export const pool = new Pool({
   host: process.env.AWS_DB_HOST,
