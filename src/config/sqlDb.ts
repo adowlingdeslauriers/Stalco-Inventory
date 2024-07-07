@@ -3,12 +3,16 @@ import pkg from 'pg';
 import { Sequelize } from 'sequelize';
 const { Pool } = pkg;
 
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 export const pool = new Pool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: Number(process.env.DB_PORT),
+  host: process.env.AWS_DB_HOST,
+  user: process.env.AWS_DB_USER,
+  password: process.env.AWS_DB_PASSWORD,
+  database: process.env.AWS_DB_NAME,
+  port: Number(process.env.AWS_DB_PORT),
+  ssl: true
 });
 
 export const connectSQLDB = async () => {
@@ -21,15 +25,21 @@ export const connectSQLDB = async () => {
   }
 };
 
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-  host: process.env.DB_HOST,
+const sequelize = new Sequelize(process.env.AWS_DB_NAME, process.env.AWS_DB_USER, process.env.AWS_DB_PASSWORD, {
+  host: process.env.AWS_DB_HOST,
   dialect: 'postgres',
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  },
   define: {
     timestamps: false,
     freezeTableName: true 
 },
   logging: false,
-  port: Number(process.env.DB_PORT)
+  port: Number(process.env.AWS_DB_PORT)
 });
 
 export const connectSequelizeDB = async () => {
@@ -51,5 +61,28 @@ export const getTableDefinition = async () => {
     console.error('Error describing table:', error);
   }
 };
+// export const dropAllTables=  async () => {
+//   try {
+//     await sequelize.authenticate();
+//     console.log('Connection has been established successfully.');
+
+//     const queryInterface = sequelize.getQueryInterface();
+
+//     // Fetch all table names
+//     const tables = await queryInterface.showAllTables();
+
+//     // Drop each table
+//     for (const table of tables) {
+//       await queryInterface.dropTable(table);
+//       console.log(`Dropped table: ${table}`);
+//     }
+
+//     console.log('All tables have been dropped successfully.');
+//   } catch (error) {
+//     console.error('Error dropping tables:', error);
+//   } finally {
+//     await sequelize.close();
+//   }
+// }
 
 export default sequelize;

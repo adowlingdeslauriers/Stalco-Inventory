@@ -60,6 +60,7 @@ const getOrdersByDateRange = asyncHandler(async (req: Request, res: Response) =>
             //     // include: [Customers, RegionShipped, SkuSales]
             // })
         ]);
+        console.log("ORDRES  ", customers)
 
         const filterOptions = await dataTransformationOrdersDashboardFilter({orders, regionShipped, customers})
 
