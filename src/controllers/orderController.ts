@@ -10,6 +10,13 @@ import {  addDays, startOfWeek, subDays, subMonths } from 'date-fns';
 import { dataTransformationOrdersDashboardFilter } from '../utils/ordersDashboard/dataTransform.js';
 
 
+function formatDate(date) {
+    let year = date.getFullYear();
+    let month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based, so add 1
+    let day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 
 let apiCount =0;
 const getOrdersByDateRange = asyncHandler(async (req: Request, res: Response) => {
@@ -123,31 +130,77 @@ console.log("THIS API END PPOINT has been called : ", apiCount)
     }
 });
 
-// const getOrderSalesLastSixMonths = asyncHandler(async (req: Request, res: Response) => {
-//     apiCount++;
-//     const endDate = new Date();
-//     const startDate = new Date();
-//     startDate.setMonth(startDate.getMonth() - 6);
-//     try {
-//         const [skusales] = await Promise.all([
-//             SkuSales.findAll({
-//                 where: {
-//                     date: {
-//                         [Op.between]: [startDate, endDate]
-//                     }
-//                 },
-//             })
-//         ]);
-
-//         const filterOptions = await dataTransformationOrdersDashboardFilter({skusales})
-
-//         res.send({ dbOrdersData: { skusales, filterOptions } });
-//     } catch (error) {
-//         console.error('Error:', error);
-//         res.status(500).send(error);
-//     }
-// });
 
 
+const getOrdersByClientLastSixMonths = asyncHandler(async (req: Request, res: Response) => {
+    apiCount++;
+    const { clientId } = req.params;
+    const endDate = new Date();
+    // const startDate = new Date();
+    const yesterday = subDays(new Date(), 1);
+    const sixMonthsAgo = subMonths(yesterday, 6);
+    const startOfWeekAfterSixMonthsAgo = addDays(startOfWeek(sixMonthsAgo, { weekStartsOn: 1 }), 7); // Adding 7 days to get the start of the next week
+console.log("STARTING of the Weeek", startOfWeekAfterSixMonthsAgo)
+console.log("endDate", endDate)
+console.log("clientId", typeof(clientId))
+    try {
+        const skusales = await SkuSales.findAll({
+            where: {
+                date: {
+                    [Op.between]: [startOfWeekAfterSixMonthsAgo, endDate]
+                },
+                client_id: clientId.trim()
+            }
+        });
+        
+        res.send({ dbData: { skusales } });
+        
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send(error);
+    }
+});
 
-export { getOrdersByDateRange, getOrdersLastSixMonths };
+const getOrdersByClientByDateRange = asyncHandler(async (req: Request, res: Response) => {
+    const { startDate, endDate } = req.query;
+    const {clientId} = req.params;
+
+    function formatDate(date) {
+        let year = date.getFullYear();
+        let month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based, so add 1
+        let day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Parse the query parameters into Date objects
+    // Explicitly cast query parameters to strings
+    let start = new Date(startDate as string);
+    let end = new Date(endDate as string);
+
+
+    // Format the dates to 'YYYY-MM-DD'
+    let formattedStartDate = formatDate(start);
+    let formattedEndDate = formatDate(end);
+
+    console.log("THE DATE RANGE FOR SKUSALES DATA IS ", formattedStartDate + " to " + formattedEndDate);
+
+    try {
+        const skusales = await 
+        SkuSales.findAll({
+            where: {
+                date: {
+                    [Op.between]: [formattedStartDate, formattedEndDate]
+                },
+                client_Id: clientId 
+            },
+        })
+
+    res.send({ dbData: { skusales } });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send(error);
+    }
+});
+
+
+export { getOrdersByDateRange, getOrdersLastSixMonths,getOrdersByClientLastSixMonths,getOrdersByClientByDateRange };
