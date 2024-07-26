@@ -191,7 +191,7 @@ const getOrdersByClientByDateRange = asyncHandler(async (req: Request, res: Resp
                 date: {
                     [Op.between]: [formattedStartDate, formattedEndDate]
                 },
-                client_Id: clientId 
+                client_id: clientId 
             },
         })
 
