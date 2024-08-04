@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
 import asyncHandler from "../middleware/asyncHandler.js";
-import { Op } from 'sequelize';
 import Orders  from "../schema/sequelizeModels/ordersModel.js" 
 import Customers  from "../schema/sequelizeModels/customersModel.js" 
 import  RegionShipped  from "../schema/sequelizeModels/regionShippedModel.js" 
 import SkuSales from "../schema/sequelizeModels/skuSalesModel.js" 
 import {  addDays, startOfWeek, subDays, subMonths } from 'date-fns';
+
+import { Op, fn, col } from 'sequelize';
 
 import { dataTransformationOrdersDashboardFilter } from '../utils/ordersDashboard/dataTransform.js';
 
@@ -203,4 +204,58 @@ const getOrdersByClientByDateRange = asyncHandler(async (req: Request, res: Resp
 });
 
 
-export { getOrdersByDateRange, getOrdersLastSixMonths,getOrdersByClientLastSixMonths,getOrdersByClientByDateRange };
+//
+
+
+const getTotalOrdersByClientByDateRange = asyncHandler(async (req: Request, res: Response) => {
+    const { startDate, endDate } = req.query;
+    const { clientId } = req.params;
+console.log("Summarized SKU data being called")
+    function formatDate(date) {
+        let year = date.getFullYear();
+        let month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based, so add 1
+        let day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Parse the query parameters into Date objects
+    let start = new Date(startDate as string);
+    let end = new Date(endDate as string);
+
+    // Format the dates to 'YYYY-MM-DD'
+    let formattedStartDate = formatDate(start);
+    let formattedEndDate = formatDate(end);
+
+    try {
+        const totalOrdersResult = await Orders.findOne({
+            where: {
+                date: {
+                    [Op.between]: [formattedStartDate, formattedEndDate]
+                },
+                client_id: clientId 
+            },
+            attributes: [[fn('sum', col('total_orders')), 'totalOrders']]
+        });
+
+        const avgQtyPerOrderResult = await Orders.findOne({
+            where: {
+                date: {
+                    [Op.between]: [formattedStartDate, formattedEndDate]
+                },
+                client_id: clientId 
+            },
+            attributes: [[fn('avg', col('avg_qty_per_order')), 'avgQtyPerOrder']]
+        });
+
+        const totalOrders = totalOrdersResult?.get('totalOrders') || 0;
+        const avgQtyPerOrder = avgQtyPerOrderResult?.get('avgQtyPerOrder') || 0;
+
+        res.send({ totalOrders, avgQtyPerOrder });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).send(error);
+    }
+});
+
+
+export { getOrdersByDateRange, getOrdersLastSixMonths,getOrdersByClientLastSixMonths,getOrdersByClientByDateRange, getTotalOrdersByClientByDateRange };
