@@ -29,7 +29,7 @@ const PORT = process.env.PORT || 8000;
 
 const dailyLimiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
-  max: 10000, // Limit each IP to 2000 requests per `window` (here, per day)
+  max: 50000, // Limit each IP to 2000 requests per `window` (here, per day)
   message: 'You have exceeded the 2000 requests in 24 hrs limit!',
   headers: true,
   keyGenerator: (req) => {
@@ -42,7 +42,7 @@ const dailyLimiter = rateLimit({
 
 const minuteLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 30, // limit each IP to 30 requests per windowMs
+  max: 200, // limit each IP to 30 requests per windowMs
   message: 'Too many requests from this IP, please try again after a minute.',
   handler: (req, res, next, options) => {
     next(new RateLimitError(options.message));
