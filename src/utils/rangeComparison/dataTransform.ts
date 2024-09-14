@@ -39,10 +39,10 @@ function calculateVariance(data1, data2) {
 
     result.push({
       clientId: clientId,
-      totalOrdersData1: totalOrders1,
-      totalOrdersData2: totalOrders2,
-      variance: variance,
-      variancePercentage: `${variancePercentage}%`,
+      totalOrdersData1: Number(totalOrders1),
+      totalOrdersData2: Number(totalOrders2),
+      variance: Number(variance),
+      variancePercentage: Number(variancePercentage),
     });
   });
 
@@ -51,10 +51,10 @@ function calculateVariance(data1, data2) {
     if (!data1.some((entry1) => entry1.clientId === entry2.clientId)) {
       result.push({
         clientId: entry2.clientId,
-        totalOrdersData1: 0,
-        totalOrdersData2: entry2.totalOrders,
-        variance: entry2.totalOrders,
-        variancePercentage: "N/A", // Cannot calculate percentage when there is no initial data
+        totalOrdersData1: Number(0),
+        totalOrdersData2: Number(entry2.totalOrders),
+        variance: Number(entry2.totalOrders),
+        variancePercentage: 0, // Cannot calculate percentage when there is no initial data
       });
     }
   });

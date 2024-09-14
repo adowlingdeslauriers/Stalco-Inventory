@@ -66,7 +66,7 @@ const getOrdersRangeComparison = asyncHandler(
         dateRange2: `${formattedStartDate2} to ${formattedEndDate2}`,
       };
 
-      res.send({ dbData: { consolidatedData, dateRanges } });
+      res.send({ consolidatedData, dateRanges });
     } catch (error) {
       console.error("Error:", error);
       res.status(500).send(error);
