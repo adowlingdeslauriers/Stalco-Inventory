@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 // Create a Nodemailer transporter
 const transporter = nodemailer.createTransport({
@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 
 // Function to generate HTML table from data
 function generateHTMLTable(data: any[]): string {
-    let html = `
+  let html = `
     <h3> Below is a list of inventory which needs to be replenished :  </h3>
 
       <table style="border-collapse: collapse; width: 100%;">
@@ -25,9 +25,9 @@ function generateHTMLTable(data: any[]): string {
         </thead>
         <tbody>
     `;
-  
-    data.forEach(item => {
-      html += `
+
+  data.forEach((item) => {
+    html += `
       
         <tr>
           <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${item.clientName}</td>
@@ -36,36 +36,32 @@ function generateHTMLTable(data: any[]): string {
           <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${item.qtyToReplenish}</td>
         </tr>
       `;
-    });
-  
-    html += `
+  });
+
+  html += `
         </tbody>
       </table>
     `;
-  
-    return html;
-  }
+
+  return html;
+}
 
 export async function sendEmail(data: any): Promise<void> {
   // Email content
   let mailOptions = {
-    from: 'stalco3pl@gmail.com',
-    to: 'rehan@stalco.ca', // Email address you want to send to
-    subject: 'Replenishment Flags Data',
-    text: 'Automated',
+    from: "stalco3pl@gmail.com",
+    to: "inventory@stalco.ca", // Email address you want to send to
+    subject: "Replenishment Flags Data",
+    text: "Automated",
     html: generateHTMLTable(data), // Convert data to string for email body
   };
-
-
-
-  
 
   // Send email
   try {
     let info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.response);
+    console.log("Email sent:", info.response);
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
     throw error;
   }
 }
