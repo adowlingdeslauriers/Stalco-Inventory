@@ -7,6 +7,7 @@ import {
   getOrdersByClientByDateRange,
   getTotalOrdersByClientByDateRange,
   getTotalInventoryProcessed,
+  getLast12WeekAverage,
 } from "../controllers/orderController.js";
 import { protect, admin } from "../middleware/authMiddleware.js";
 import checkObjectId from "../middleware/checkedObjectId.js";
@@ -21,6 +22,7 @@ router.get(
   getTotalOrdersByClientByDateRange,
 );
 router.get("/total-inventory/date-range", getTotalInventoryProcessed);
+router.get("/total-orders/date-range", getLast12WeekAverage);
 
 router.get("/range-comparsion", getOrdersRangeComparison);
 

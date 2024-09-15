@@ -138,6 +138,50 @@ const getOrdersLastSixMonths = asyncHandler(
   },
 );
 
+const getLast12WeekAverage = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { startDate, endDate } = req.query;
+
+    // Explicitly cast query parameters to strings
+    let start = new Date(startDate as string);
+    let end = new Date(endDate as string);
+
+    // Format the dates to 'YYYY-MM-DD'
+    let formattedStartDate = formatDate(start);
+    let formattedEndDate = formatDate(end);
+
+    console.log(
+      "THE 12 week avg DATE RANGE IS ",
+      formattedStartDate + " to " + formattedEndDate,
+    );
+
+    try {
+      const [result] = await Promise.all([
+        Orders.findAll({
+          attributes: [
+            [
+              Sequelize.fn("SUM", Sequelize.col("total_orders")),
+              "totalOrdersSum",
+            ],
+          ],
+          where: {
+            date: {
+              [Op.between]: [formattedStartDate, formattedEndDate],
+            },
+          },
+        }),
+      ]);
+
+      const totalOrdersSum = result[0]?.dataValues?.totalOrdersSum || 0;
+
+      res.send({ totalOrdersSum });
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).send(error);
+    }
+  },
+);
+
 const getOrdersByClientLastSixMonths = asyncHandler(
   async (req: Request, res: Response) => {
     apiCount++;
@@ -315,4 +359,5 @@ export {
   getOrdersByClientByDateRange,
   getTotalOrdersByClientByDateRange,
   getTotalInventoryProcessed,
+  getLast12WeekAverage,
 };
