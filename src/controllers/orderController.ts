@@ -5,6 +5,7 @@ import Customers from "../schema/sequelizeModels/customersModel.js";
 import RegionShipped from "../schema/sequelizeModels/regionShippedModel.js";
 import SkuSales from "../schema/sequelizeModels/skuSalesModel.js";
 import { addDays, startOfWeek, subDays, subMonths } from "date-fns";
+import { putOrderItem, getOrder } from "../3plApi/fetchingAPI.js";
 
 import { Op, fn, col, Sequelize } from "sequelize";
 
@@ -33,7 +34,7 @@ const getOrdersByDateRange = asyncHandler(
 
     console.log(
       "THE DATE RANGE IS ",
-      formattedStartDate + " to " + formattedEndDate,
+      formattedStartDate + " to " + formattedEndDate
     );
 
     try {
@@ -77,7 +78,7 @@ const getOrdersByDateRange = asyncHandler(
       console.error("Error:", error);
       res.status(500).send(error);
     }
-  },
+  }
 );
 
 const getOrdersLastSixMonths = asyncHandler(
@@ -89,7 +90,7 @@ const getOrdersLastSixMonths = asyncHandler(
     const sixMonthsAgo = subMonths(yesterday, 6);
     const startOfWeekAfterSixMonthsAgo = addDays(
       startOfWeek(sixMonthsAgo, { weekStartsOn: 1 }),
-      7,
+      7
     ); // Adding 7 days to get the start of the next week
 
     // startDate.setMonth(startDate.getMonth() - 6);
@@ -135,7 +136,7 @@ const getOrdersLastSixMonths = asyncHandler(
       console.error("Error:", error);
       res.status(500).send(error);
     }
-  },
+  }
 );
 
 const getLast12WeekAverage = asyncHandler(
@@ -152,7 +153,7 @@ const getLast12WeekAverage = asyncHandler(
 
     console.log(
       "THE 12 week avg DATE RANGE IS ",
-      formattedStartDate + " to " + formattedEndDate,
+      formattedStartDate + " to " + formattedEndDate
     );
 
     try {
@@ -179,7 +180,7 @@ const getLast12WeekAverage = asyncHandler(
       console.error("Error:", error);
       res.status(500).send(error);
     }
-  },
+  }
 );
 
 const getOrdersByClientLastSixMonths = asyncHandler(
@@ -192,7 +193,7 @@ const getOrdersByClientLastSixMonths = asyncHandler(
     const sixMonthsAgo = subMonths(yesterday, 6);
     const startOfWeekAfterSixMonthsAgo = addDays(
       startOfWeek(sixMonthsAgo, { weekStartsOn: 1 }),
-      7,
+      7
     ); // Adding 7 days to get the start of the next week
     console.log("STARTING of the Weeek", startOfWeekAfterSixMonthsAgo);
     console.log("endDate", endDate);
@@ -212,7 +213,7 @@ const getOrdersByClientLastSixMonths = asyncHandler(
       console.error("Error:", error);
       res.status(500).send(error);
     }
-  },
+  }
 );
 
 const getOrdersByClientByDateRange = asyncHandler(
@@ -238,7 +239,7 @@ const getOrdersByClientByDateRange = asyncHandler(
 
     console.log(
       "THE DATE RANGE FOR SKUSALES DATA IS ",
-      formattedStartDate + " to " + formattedEndDate,
+      formattedStartDate + " to " + formattedEndDate
     );
 
     try {
@@ -256,7 +257,7 @@ const getOrdersByClientByDateRange = asyncHandler(
       console.error("Error:", error);
       res.status(500).send(error);
     }
-  },
+  }
 );
 
 //
@@ -310,7 +311,7 @@ const getTotalOrdersByClientByDateRange = asyncHandler(
       console.error("Error:", error);
       res.status(500).send(error);
     }
-  },
+  }
 );
 const getTotalInventoryProcessed = asyncHandler(
   async (req: Request, res: Response) => {
@@ -349,8 +350,50 @@ const getTotalInventoryProcessed = asyncHandler(
       console.error("Error:", error);
       res.status(500).send(error);
     }
-  },
+  }
 );
+
+const putOrderItems = asyncHandler(async (req: Request, res: Response) => {
+  const orderId = req.params.orderId;
+  const { skuName, serialNumbers } = req.query;
+  const order = await getOrder(orderId);
+  const etag = order.etag;
+
+  console.log("orderId:", orderId);
+  //console.log("skuName:", skuName);
+  //console.log("serialNumbers:", serialNumbers);
+  //console.log("etag:", etag);
+  //console.log("order:", order);
+
+  try {
+    for (var item of order._embedded[
+      "http://api.3plCentral.com/rels/orders/item"
+    ]) {
+      if (item.itemIdentifier.sku == skuName) {
+        var itemId = item.readOnly.orderItemId;
+        item.ExternalId = serialNumbers;
+
+        console.log("itemId:", itemId);
+        //console.log("item:", item);
+        putOrderItem(orderId, itemId, etag, item);
+        res.status(200).send(order);
+      }
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send(error);
+  }
+});
+
+// param
+const testPutOrderItems = asyncHandler(async (req: Request, res, Response) => {
+  req.params.orderId = "23225656";
+  req.query = {
+    skuName: "RyokoTestSKU1",
+    serialNumbers: [1234, 5678],
+  };
+  return await putOrderItems(req, res, null);
+});
 
 export {
   getOrdersByDateRange,
@@ -360,4 +403,6 @@ export {
   getTotalOrdersByClientByDateRange,
   getTotalInventoryProcessed,
   getLast12WeekAverage,
+  putOrderItems,
+  testPutOrderItems,
 };

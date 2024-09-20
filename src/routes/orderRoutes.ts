@@ -8,6 +8,8 @@ import {
   getTotalOrdersByClientByDateRange,
   getTotalInventoryProcessed,
   getLast12WeekAverage,
+  putOrderItems,
+  testPutOrderItems,
 } from "../controllers/orderController.js";
 import { protect, admin } from "../middleware/authMiddleware.js";
 import checkObjectId from "../middleware/checkedObjectId.js";
@@ -19,11 +21,14 @@ router.get("/last-six-months/:clientId", getOrdersByClientLastSixMonths);
 router.get("/date-range/:clientId", getOrdersByClientByDateRange);
 router.get(
   "/total-orders/date-range/:clientId",
-  getTotalOrdersByClientByDateRange,
+  getTotalOrdersByClientByDateRange
 );
 router.get("/total-inventory/date-range", getTotalInventoryProcessed);
 router.get("/total-orders/date-range", getLast12WeekAverage);
 
 router.get("/range-comparsion", getOrdersRangeComparison);
+
+router.put("/items/:orderId", putOrderItems);
+router.get("/testitems", testPutOrderItems);
 
 export default router;
